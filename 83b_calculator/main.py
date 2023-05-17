@@ -1,5 +1,9 @@
+from calculator import Calculator
+
+
 def main():
-    print("hello")
+    calculator = Calculator()
+    report = calculator.run()
 
 
 main()
