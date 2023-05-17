@@ -1,4 +1,6 @@
-from portfolio_report import PortfolioReport
+from reports.vesting import VestingReport
+from reports.portfolio import PortfolioReport
+from reports.income_tax import IncomeTaxReport
 
 
 class Calculator:
@@ -11,30 +13,25 @@ class Calculator:
         section_83b_election_filed = False
         vesting_period_idx = 1
 
-        report = self.get_report(
+        vesting_report = self.get_vesting_report(
             section_83b_election_filed,
             vesting_period_idx,
             SHARE_PRICES,
             VESTING_SCHEDULE
         )
 
-        print(report)
+        print(vesting_report)
 
-    def get_report(self,
-                   section_83b_election_filed,
-                   vesting_period_idx,
-                   share_prices,
-                   vesting_schedule):
-        return PortfolioReport(
+    def get_vesting_report(self,
+                           section_83b_election_filed,
+                           vesting_period_idx,
+                           share_prices,
+                           vesting_schedule):
+        return VestingReport(
             vesting_period_idx,
-            1_000,
-            1_000_000,
-            400_000,
-            [],
-            25_000.01,
-            10_001.99,
-            3_334.55,
-            1_200.23
+            0.0066,
+            PortfolioReport([]),
+            IncomeTaxReport(25_000, 10_000)
         )
 
     def get_vested_shares(self, vesting_schedule):
