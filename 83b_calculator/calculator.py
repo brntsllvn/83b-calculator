@@ -1,23 +1,22 @@
 from reports.vesting import VestingReport
-from reports.portfolio import PortfolioReport
-from reports.income_tax import IncomeTaxReport
+from reports.portfolio import PortfolioReport, get_portfolio_report
+from reports.income_tax import IncomeTaxReport, get_income_tax_report
 
 
 class Calculator:
-    def run(self):
-        MARGINAL_INCOME_TAX_RATE = 0.37
-        MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE = 0.23
-        SHARE_PRICES = [0.01, 0.05, 0.25, 1.25, 2.45, 5.00]
-        VESTING_SCHEDULE = [0, 25_000, 25_000, 25_000, 25_000, 0]
-
-        section_83b_election_filed = False
-        vesting_period_idx = 1
-
+    def run(self,
+            marginal_income_tax_rate,
+            marginal_capital_gains_rate,
+            share_prices,
+            vesting_schedule,
+            section_83b_election_filed,
+            vesting_period_idx):
         vesting_report = self.get_vesting_report(
             section_83b_election_filed,
             vesting_period_idx,
-            SHARE_PRICES,
-            VESTING_SCHEDULE
+            share_prices,
+            vesting_schedule,
+            marginal_income_tax_rate
         )
 
         print(vesting_report)
@@ -26,12 +25,23 @@ class Calculator:
                            section_83b_election_filed,
                            vesting_period_idx,
                            share_prices,
-                           vesting_schedule):
+                           vesting_schedule,
+                           marginal_income_tax_rate):
+        current_price_per_share = share_prices[vesting_period_idx]
+        income_tax_report = get_income_tax_report(section_83b_election_filed,
+                                                  vesting_period_idx,
+                                                  share_prices,
+                                                  vesting_schedule,
+                                                  marginal_income_tax_rate)
+        portfolio_report = get_portfolio_report(section_83b_election_filed,
+                                                vesting_period_idx,
+                                                share_prices,
+                                                vesting_schedule)
         return VestingReport(
             vesting_period_idx,
-            0.0066,
-            PortfolioReport([]),
-            IncomeTaxReport(25_000, 10_000)
+            current_price_per_share,
+            portfolio_report,
+            income_tax_report
         )
 
     def get_vested_shares(self, vesting_schedule):
