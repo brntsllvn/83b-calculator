@@ -18,8 +18,7 @@ class Calculator:
             vesting_schedule,
             marginal_income_tax_rate
         )
-
-        print(vesting_report)
+        return vesting_report
 
     def get_vesting_report(self,
                            section_83b_election_filed,

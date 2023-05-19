@@ -29,21 +29,24 @@ def get_lots(section_83b_election_filed,
              vesting_period_idx,
              share_prices,
              vesting_schedule):
-    # TODO: add 83(b) case
     lots = []
     for idx, vesting_shares in enumerate(vesting_schedule):
-        if 0 < idx <= vesting_period_idx:
-            basis_per_share = share_prices[idx]
-            current_price_per_share = share_prices[vesting_period_idx]
-            lot = Lot(
-                idx,
-                vesting_shares,
-                basis_per_share,
-                round(1.0 * vesting_shares * basis_per_share, 2),
-                current_price_per_share,
-                round(1.0 * vesting_shares * current_price_per_share, 2)
-            )
-            lots.append(lot)
+        if idx <= vesting_period_idx:
+            if vesting_shares > 0:
+                if section_83b_election_filed:
+                    basis_per_share = share_prices[0]
+                else:
+                    basis_per_share = share_prices[idx]
+                current_price_per_share = share_prices[vesting_period_idx]
+                lot = Lot(
+                    idx,
+                    vesting_shares,
+                    basis_per_share,
+                    round(1.0 * vesting_shares * basis_per_share, 2),
+                    current_price_per_share,
+                    round(1.0 * vesting_shares * current_price_per_share, 2)
+                )
+                lots.append(lot)
     return lots
 
 
