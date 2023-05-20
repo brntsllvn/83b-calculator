@@ -1,6 +1,6 @@
-from calculator import Calculator
 import pprint
 
+from execute.simulate import run_scenario
 
 """
     I want...
@@ -21,21 +21,19 @@ import pprint
 
 
 def main():
-    MARGINAL_INCOME_TAX_RATE = 0.37
-    MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE = 0.23
-    SHARE_PRICES = [0.01, 0.05, 0.25, 1.25, 2.45, 5.00]
-    VESTING_SCHEDULE = [0, 25_000, 25_000, 25_000, 25_000, 0]
+    marginal_income_tax_rate = 0.37
+    marginal_long_term_capital_gains_rate = 0.20
+    share_price_process = [0.01, 0.05, 0.25, 1.25, 2.45, 5.00]
+    vesting_schedule = [0, 25_000, 25_000, 25_000, 25_000, 0]
+    filed_83b_election = False
 
-    calculator = Calculator()
-    no83b = calculator.run(
-        MARGINAL_INCOME_TAX_RATE,
-        MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE,
-        SHARE_PRICES,
-        VESTING_SCHEDULE,
-        True
-    )
+    results = run_scenario(marginal_income_tax_rate,
+                           marginal_long_term_capital_gains_rate,
+                           filed_83b_election,
+                           vesting_schedule,
+                           share_price_process)
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(no83b)
+    pp.pprint(results)
 
 
 main()
