@@ -33,18 +33,33 @@ def run_scenario(marginal_income_tax_rate,
                 lot = Lot(idx, count_vesting_shares, price_per_share)
                 lots.append(lot)
 
-        # portfolio
-        portfolio_basis = 0
-        portfolio_value = 0
-        for idx, lot in enumerate(lots):
-            portfolio_basis += lot.share_count * lot.basis_per_share
-            portfolio_value += lot.share_count * share_price_process[-1]
+    # portfolio
+    portfolio = get_portfolio(lots, share_price_process[-1])
 
-        # liquidation
-        capital_gains_tax = round(
-            1.0 * (portfolio_value - portfolio_basis) * marginal_long_term_capital_gains_rate, 2)
-        capital_gains_tax_event = TaxEvent(
-            len(share_price_process) - 1, TaxType.CAPITAL_GAINS_LONG_TERM, capital_gains_tax)
-        tax_events.append(capital_gains_tax_event)
+    # liquidation
+    capital_gains_tax_event = liquidate_portfolio(portfolio.get("value"),
+                                                  portfolio.get("basis"),
+                                                  marginal_long_term_capital_gains_rate,
+                                                  len(share_price_process) - 1)
+    tax_events.append(capital_gains_tax_event)
+    return tax_events
 
-        return (vesting_events, tax_events)
+
+def get_portfolio(lots, last_share_price):
+    portfolio_basis = 0
+    portfolio_value = 0
+    for idx, lot in enumerate(lots):
+        portfolio_basis += lot.share_count * lot.basis_per_share
+        portfolio_value += lot.share_count * last_share_price
+    return {"value": portfolio_value, "basis": portfolio_basis}
+
+
+def liquidate_portfolio(portfolio_value,
+                        portfolio_basis,
+                        marginal_long_term_capital_gains_rate,
+                        liquidate_time_idx):
+    capital_gains_tax = round(
+        1.0 * (portfolio_value - portfolio_basis) * marginal_long_term_capital_gains_rate, 2)
+    capital_gains_tax_event = TaxEvent(
+        liquidate_time_idx, TaxType.CAPITAL_GAINS_LONG_TERM, capital_gains_tax)
+    return capital_gains_tax_event
