@@ -1,6 +1,5 @@
 from events.vesting_event import VestingEvent
-from events.income_tax_event import IncomeTaxEvent
-from events.capital_gains_tax_event import CapitalGainsTaxEvent
+from events.tax_event import TaxEvent, TaxType
 from state.portfolio import Portfolio
 from state.lot import Lot
 
@@ -12,8 +11,7 @@ def run_scenario(marginal_income_tax_rate,
                  share_price_process):
 
     vesting_events = []
-    income_tax_events = []
-    capital_gains_tax_events = []
+    tax_events = []
     lots = []
     if filed_83b_election:
         # TODO
@@ -28,8 +26,9 @@ def run_scenario(marginal_income_tax_rate,
                 price_per_share = share_price_process[idx]
                 income_tax = round(
                     1.0 * count_vesting_shares * price_per_share * marginal_income_tax_rate, 2)
-                income_tax_event = IncomeTaxEvent(idx, income_tax)
-                income_tax_events.append(income_tax_event)
+                income_tax_event = TaxEvent(
+                    idx, TaxType.INCOME, income_tax)
+                tax_events.append(income_tax_event)
 
                 lot = Lot(idx, count_vesting_shares, price_per_share)
                 lots.append(lot)
@@ -44,8 +43,8 @@ def run_scenario(marginal_income_tax_rate,
         # liquidation
         capital_gains_tax = round(
             1.0 * (portfolio_value - portfolio_basis) * marginal_long_term_capital_gains_rate, 2)
-        capital_gains_tax_event = CapitalGainsTaxEvent(
-            len(share_price_process) - 1, capital_gains_tax)
-        capital_gains_tax_events.append(capital_gains_tax_event)
+        capital_gains_tax_event = TaxEvent(
+            len(share_price_process) - 1, TaxType.CAPITAL_GAINS_LONG_TERM, capital_gains_tax)
+        tax_events.append(capital_gains_tax_event)
 
-        return (vesting_events, income_tax_events, capital_gains_tax_events)
+        return (vesting_events, tax_events)
