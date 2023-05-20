@@ -10,43 +10,31 @@ class PortfolioReport:
     portfolio_value: float
 
 
-def get_portfolio_report(section_83b_election_filed,
-                         vesting_period_idx,
-                         share_prices,
-                         vesting_schedule):
-    lots = get_lots(section_83b_election_filed,
-                    vesting_period_idx,
-                    share_prices,
-                    vesting_schedule)
+def get_portfolio_report(section_83b_election_filed, share_prices, vesting_schedule):
+    lots = get_lots(section_83b_election_filed, share_prices, vesting_schedule)
     portfolio_basis = get_portfolio_basis(lots)
     portfolio_value = get_portfolio_value(lots)
-    return PortfolioReport(lots,
-                           portfolio_basis,
-                           portfolio_value)
+    return PortfolioReport(lots, portfolio_basis, portfolio_value)
 
 
-def get_lots(section_83b_election_filed,
-             vesting_period_idx,
-             share_prices,
-             vesting_schedule):
+def get_lots(section_83b_election_filed, share_prices, vesting_schedule):
     lots = []
     for idx, vesting_shares in enumerate(vesting_schedule):
-        if idx <= vesting_period_idx:
-            if vesting_shares > 0:
-                if section_83b_election_filed:
-                    basis_per_share = share_prices[0]
-                else:
-                    basis_per_share = share_prices[idx]
-                current_price_per_share = share_prices[vesting_period_idx]
-                lot = Lot(
-                    idx,
-                    vesting_shares,
-                    basis_per_share,
-                    round(1.0 * vesting_shares * basis_per_share, 2),
-                    current_price_per_share,
-                    round(1.0 * vesting_shares * current_price_per_share, 2)
-                )
-                lots.append(lot)
+        if vesting_shares > 0:
+            if section_83b_election_filed:
+                basis_per_share = share_prices[0]
+            else:
+                basis_per_share = share_prices[idx]
+            current_price_per_share = share_prices[-1]
+            lot = Lot(
+                idx,
+                vesting_shares,
+                basis_per_share,
+                round(1.0 * vesting_shares * basis_per_share, 2),
+                current_price_per_share,
+                round(1.0 * vesting_shares * current_price_per_share, 2)
+            )
+            lots.append(lot)
     return lots
 
 

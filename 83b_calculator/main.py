@@ -25,7 +25,6 @@ def main():
     MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE = 0.23
     SHARE_PRICES = [0.01, 0.05, 0.25, 1.25, 2.45, 5.00]
     VESTING_SCHEDULE = [0, 25_000, 25_000, 25_000, 25_000, 0]
-    VESTING_PERIOD_IDX = 4
 
     calculator = Calculator()
     no83b = calculator.run(
@@ -33,23 +32,10 @@ def main():
         MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE,
         SHARE_PRICES,
         VESTING_SCHEDULE,
-        False,
-        VESTING_PERIOD_IDX
+        True
     )
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(no83b)
-
-    yes83b = calculator.run(
-        MARGINAL_INCOME_TAX_RATE,
-        MARGINAL_LONG_TERM_CAPITAL_GAINS_RATE,
-        SHARE_PRICES,
-        VESTING_SCHEDULE,
-        True,
-        VESTING_PERIOD_IDX
-    )
-
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(yes83b)
 
 
 main()

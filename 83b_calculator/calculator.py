@@ -9,11 +9,9 @@ class Calculator:
             marginal_capital_gains_rate,
             share_prices,
             vesting_schedule,
-            section_83b_election_filed,
-            vesting_period_idx):
+            section_83b_election_filed):
         vesting_report = self.get_vesting_report(
             section_83b_election_filed,
-            vesting_period_idx,
             share_prices,
             vesting_schedule,
             marginal_income_tax_rate
@@ -22,22 +20,19 @@ class Calculator:
 
     def get_vesting_report(self,
                            section_83b_election_filed,
-                           vesting_period_idx,
                            share_prices,
                            vesting_schedule,
                            marginal_income_tax_rate):
-        current_price_per_share = share_prices[vesting_period_idx]
+        current_price_per_share = share_prices[-1]
         income_tax_report = get_income_tax_report(section_83b_election_filed,
-                                                  vesting_period_idx,
                                                   share_prices,
                                                   vesting_schedule,
                                                   marginal_income_tax_rate)
         portfolio_report = get_portfolio_report(section_83b_election_filed,
-                                                vesting_period_idx,
                                                 share_prices,
                                                 vesting_schedule)
         return VestingReport(
-            vesting_period_idx,
+            len(share_prices),
             current_price_per_share,
             portfolio_report,
             income_tax_report

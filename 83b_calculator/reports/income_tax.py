@@ -1,50 +1,46 @@
 from dataclasses import dataclass
 
+from reports.income_tax_event import IncomeTaxEvent
+
 
 @dataclass
 class IncomeTaxReport:
-    shares_vesting_this_period: int
-    income_tax: float
+    income_tax_events: [IncomeTaxEvent]
 
 
 def get_income_tax_report(section_83b_election_filed,
-                          vesting_period_idx,
                           share_prices,
                           vesting_schedule,
                           marginal_income_tax_rate):
-    shares_vesting_this_period = get_shares_vesting_this_period(
-        vesting_period_idx,
-        vesting_schedule
-    )
-    income_tax = get_income_tax(section_83b_election_filed,
-                                vesting_period_idx,
-                                share_prices,
-                                vesting_schedule,
-                                marginal_income_tax_rate)
-    return IncomeTaxReport(shares_vesting_this_period, income_tax)
+    income_tax_events = get_income_tax_events(section_83b_election_filed,
+                                              share_prices,
+                                              vesting_schedule,
+                                              marginal_income_tax_rate)
+    return IncomeTaxReport(income_tax_events)
 
 
-def get_shares_vesting_this_period(vesting_period_idx, vesting_schedule):
-    return vesting_schedule[vesting_period_idx]
+def get_income_tax_events(section_83b_election_filed,
+                          share_prices,
+                          vesting_schedule,
+                          marginal_income_tax_rate):
 
-
-def get_income_tax(section_83b_election_filed,
-                   vesting_period_idx,
-                   share_prices,
-                   vesting_schedule,
-                   marginal_income_tax_rate):
-    current_price_per_share = share_prices[vesting_period_idx]
-    if section_83b_election_filed:
-        if vesting_period_idx == 0:
+    income_tax_events = []
+    for idx, vesting_shares in enumerate(vesting_schedule):
+        income_tax = 0
+        current_price_per_share = share_prices[idx]
+        if section_83b_election_filed and idx == 0:
             shares_granted = sum(vesting_schedule)
             taxable_income = shares_granted * current_price_per_share
             income_tax = round(1.0 * taxable_income *
                                marginal_income_tax_rate, 2)
+            return IncomeTaxEvent(idx, income_tax)
         else:
-            income_tax = 0
-    else:
-        vesting_shares = vesting_schedule[vesting_period_idx]
-        vesting_value = round(1.0 * vesting_shares *
-                              current_price_per_share, 2)
-        income_tax = vesting_value * marginal_income_tax_rate
-    return income_tax
+            vesting_shares = vesting_schedule[idx]
+            if vesting_shares == 0:
+                continue
+            taxable_income = vesting_shares * current_price_per_share
+            income_tax = round(1.0 * taxable_income *
+                               marginal_income_tax_rate, 2)
+            income_tax_event = IncomeTaxEvent(idx, income_tax)
+            income_tax_events.append(IncomeTaxEvent(idx, income_tax))
+    return income_tax_events
