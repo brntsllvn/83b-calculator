@@ -1,18 +1,57 @@
+from dataclasses import dataclass
+
+import numpy_financial as npf
+
 from events.vesting_event import VestingEvent
 from events.tax_event import TaxEvent, TaxType
 from state.portfolio import Portfolio
 from state.lot import Lot
 
 
+@dataclass
+class Election83bValue:
+    tax_diff_process: [float]
+    npv: float
+    irr: float
+
+
+@dataclass
+class EventsLots:
+    vesting_events: [VestingEvent]
+    lots: [Lot]
+    tax_events: [TaxEvent]
+
+
+@dataclass
+class ScenarioResult:
+    no_83b_events_and_lots: EventsLots
+    yes_83b_events_and_lots: EventsLots
+    election_83b_value: Election83bValue
+
+
 def run_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process):
-    yes_83b_tax_events = run_83b_scenario(
+        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, discount_rate, vesting_schedule, share_price_process):
+    yes_83b_scenario_result = run_83b_scenario(
         marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process)
-    no_83b_tax_events = run_no_83b_scenario(
+    no_83b_scenario_result = run_no_83b_scenario(
         marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process)
     tax_diff_process = get_tax_diff_process(
-        len(share_price_process), yes_83b_tax_events, no_83b_tax_events)
-    return tax_diff_process
+        len(share_price_process), yes_83b_scenario_result.tax_events, no_83b_scenario_result.tax_events)
+    npv = get_npv(tax_diff_process, discount_rate)
+    irr = get_irr(tax_diff_process)
+    election_83b_value = Election83bValue(tax_diff_process, npv, irr)
+    scenario_result = ScenarioResult(
+        no_83b_scenario_result, yes_83b_scenario_result, election_83b_value)
+    return scenario_result
+
+
+def get_npv(tax_diff_process, discount_rate):
+    npv = npf.npv(discount_rate, tax_diff_process)
+    return npv
+
+
+def get_irr(tax_diff_process):
+    return 0
 
 
 def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events):
@@ -41,10 +80,11 @@ def run_83b_scenario(
         marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process):
     vesting_events, tax_events, lots = get_83b_events_and_lots(
         marginal_income_tax_rate, vesting_schedule, share_price_process)
-    capital_gains_tax_event = liquidate_portfolio(
+    capital_gains_tax_event = simulate_portfolio_liquidation(
         marginal_long_term_capital_gains_rate, len(share_price_process) - 1, lots)
     tax_events.append(capital_gains_tax_event)
-    return tax_events
+    scenario_result = EventsLots(vesting_events, lots, tax_events)
+    return scenario_result
 
 
 def get_83b_events_and_lots(marginal_income_tax_rate, vesting_schedule, share_price_process):
@@ -71,10 +111,11 @@ def run_no_83b_scenario(
         marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process):
     vesting_events, tax_events, lots = get_no_83b_events_and_lots(
         marginal_income_tax_rate, vesting_schedule, share_price_process)
-    capital_gains_tax_event = liquidate_portfolio(
+    capital_gains_tax_event = simulate_portfolio_liquidation(
         marginal_long_term_capital_gains_rate, len(share_price_process) - 1, lots)
     tax_events.append(capital_gains_tax_event)
-    return tax_events
+    scenario_result = EventsLots(vesting_events, lots, tax_events)
+    return scenario_result
 
 
 def get_no_83b_events_and_lots(marginal_income_tax_rate, vesting_schedule, share_price_process):
@@ -106,7 +147,7 @@ def get_portfolio(lots, last_share_price):
     return portfolio_value, portfolio_basis
 
 
-def liquidate_portfolio(marginal_long_term_capital_gains_rate, liquidate_time_idx, lots):
+def simulate_portfolio_liquidation(marginal_long_term_capital_gains_rate, liquidate_time_idx, lots):
     portfolio_value, portfolio_basis = get_portfolio(lots, liquidate_time_idx)
     capital_gains_tax = round(
         1.0 * (portfolio_value - portfolio_basis) * marginal_long_term_capital_gains_rate, 2)
