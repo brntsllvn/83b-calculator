@@ -12,7 +12,6 @@ from state.lot import Lot
 class Election83bValue:
     tax_diff_process: [float]
     npv: float
-    irr: float
 
 
 @dataclass
@@ -38,20 +37,15 @@ def run_scenario(
     tax_diff_process = get_tax_diff_process(
         len(share_price_process), yes_83b_scenario_result.tax_events, no_83b_scenario_result.tax_events)
     npv = get_npv(tax_diff_process, discount_rate)
-    irr = get_irr(tax_diff_process)
-    election_83b_value = Election83bValue(tax_diff_process, npv, irr)
+    election_83b_value = Election83bValue(tax_diff_process, npv)
     scenario_result = ScenarioResult(
         no_83b_scenario_result, yes_83b_scenario_result, election_83b_value)
     return scenario_result
 
 
 def get_npv(tax_diff_process, discount_rate):
-    npv = npf.npv(discount_rate, tax_diff_process)
+    npv = round(npf.npv(discount_rate, tax_diff_process), 2)
     return npv
-
-
-def get_irr(tax_diff_process):
-    return 0
 
 
 def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events):
