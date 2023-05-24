@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from state.lot import Lot
+from src.state.lot import Lot
+# from state.lot import Lot
 
 
 @dataclass

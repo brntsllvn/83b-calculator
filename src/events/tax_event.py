@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum
 
 
-class TaxType(Enum):
+class TaxType(IntEnum):
     INCOME = 1
     CAPITAL_GAINS_LONG_TERM = 2
     PLACEHOLDER = 10
@@ -11,5 +11,6 @@ class TaxType(Enum):
 @dataclass
 class TaxEvent:
     time_idx: int
+    taxable_amount: float
     tax_type: TaxType
     tax_amount: float
