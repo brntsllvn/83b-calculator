@@ -81,8 +81,8 @@ def test_simulate_irb_2012_28_examples_1_2():
 
     assert election_83b_value.tax_diff_process == [
         0.0, 0.0, 5550.0, -3000.0]
-    assert election_83b_value.raw == 2550.0
-    assert election_83b_value.npv == 2420.62
+    assert election_83b_value.raw_dollars == 2550.0
+    assert election_83b_value.npv_dollars == 2420.62
 
 
 """
@@ -137,8 +137,8 @@ def test_simulate_irb_2012_28_example_3():
 
     assert election_83b_value.tax_diff_process == [
         0.0, 0.0, 0.0, 0.0]
-    assert election_83b_value.raw == 0.0
-    assert election_83b_value.npv == 0.0
+    assert election_83b_value.raw_dollars == 0.0
+    assert election_83b_value.npv_dollars == 0.0
 
 
 """
@@ -217,8 +217,8 @@ def test_simulate_irb_2012_28_examples_4_5():
 
     assert election_83b_value.tax_diff_process == [
         -9250.0, 0.0, 14800.0, -3000.0]
-    assert election_83b_value.raw == 2550.0
-    assert election_83b_value.npv == 1403.09
+    assert election_83b_value.raw_dollars == 2550.0
+    assert election_83b_value.npv_dollars == 1403.09
 
 
 """
@@ -274,5 +274,5 @@ def test_simulate_irb_2012_28_examples_6():
 
     assert election_83b_value.tax_diff_process == [
         -9250.0, 0.0, 0.0, 0.0]
-    assert election_83b_value.raw == -9250.0
-    assert election_83b_value.npv == -9250.0
+    assert election_83b_value.raw_dollars == -9250.0
+    assert election_83b_value.npv_dollars == -9250.0

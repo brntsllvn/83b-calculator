@@ -16,8 +16,8 @@ from src.state.lot import Lot
 @dataclass
 class Election83bValue:
     tax_diff_process: [float]
-    raw: float
-    npv: float
+    raw_dollars: float
+    npv_dollars: float
 
 
 @dataclass
