@@ -99,7 +99,7 @@ def get_tax_event(time_idx, tax_events):
     for tax_event in tax_events:
         if tax_event.time_idx == time_idx:
             return tax_event
-    return TaxEvent(time_idx, 0.0, TaxType.PLACEHOLDER, 0.0)
+    return TaxEvent(time_idx, 0.0, TaxType.ZERO, 0.0)
 
 
 def run_83b_scenario(

@@ -5,7 +5,7 @@ from enum import IntEnum
 class TaxType(IntEnum):
     INCOME = 1
     CAPITAL_GAINS_LONG_TERM = 2
-    PLACEHOLDER = 10
+    ZERO = 10
 
 
 @dataclass
