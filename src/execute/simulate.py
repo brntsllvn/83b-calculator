@@ -2,15 +2,10 @@ from dataclasses import dataclass
 
 import numpy_financial as npf
 
-from src.events.vesting_event import VestingEvent
+from src.events.share_event import ShareEvent, ShareEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.portfolio import Portfolio
 from src.state.lot import Lot
-
-# from events.vesting_event import VestingEvent
-# from events.tax_event import TaxEvent, TaxType
-# from state.portfolio import Portfolio
-# from state.lot import Lot
 
 
 @dataclass
@@ -22,7 +17,7 @@ class Election83bValue:
 
 @dataclass
 class EventsLots:
-    vesting_events: [VestingEvent]
+    share_events: [ShareEvent]
     lots: [Lot]
     tax_events: [TaxEvent]
 
@@ -151,7 +146,12 @@ def get_83b_events_and_lots(marginal_income_tax_rate,
                     idx, taxable_income, TaxType.INCOME, income_tax)
                 tax_events.append(income_tax_event)
         elif count_vesting_shares > 0:
-            vesting_event = VestingEvent(idx, count_vesting_shares)
+            vesting_event = ShareEvent(
+                idx,
+                ShareEventType.VEST,
+                count_vesting_shares,
+                share_price_process[idx],
+                False)
             vesting_events.append(vesting_event)
             lot = Lot(idx, count_vesting_shares, basis_per_share)
             lots.append(lot)
@@ -188,7 +188,12 @@ def get_no_83b_events_and_lots(marginal_income_tax_rate,
     lots = []
     for idx, count_vesting_shares in enumerate(vesting_schedule):
         if count_vesting_shares > 0:
-            vesting_event = VestingEvent(idx, count_vesting_shares)
+            vesting_event = ShareEvent(
+                idx,
+                ShareEventType.VEST,
+                count_vesting_shares,
+                share_price_process[idx],
+                True)
             vesting_events.append(vesting_event)
 
             price_per_share = share_price_process[idx]
