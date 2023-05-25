@@ -34,20 +34,44 @@ class ScenarioResult:
     election_83b_value: Election83bValue
 
 
+@dataclass
+class EmployeePayment:
+    price_per_share: float
+    share_count: int
+
+
 def run_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, discount_rate, share_grant_count, vesting_schedule, share_price_process):
+        marginal_income_tax_rate,
+        marginal_long_term_capital_gains_rate,
+        discount_rate,
+        share_grant_count,
+        employee_payment,
+        vesting_schedule,
+        share_price_process):
     yes_83b_scenario_result = run_83b_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, share_grant_count, vesting_schedule, share_price_process)
+        marginal_income_tax_rate,
+        marginal_long_term_capital_gains_rate,
+        share_grant_count,
+        employee_payment,
+        vesting_schedule,
+        share_price_process)
     no_83b_scenario_result = run_no_83b_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process)
+        marginal_income_tax_rate,
+        marginal_long_term_capital_gains_rate,
+        employee_payment,
+        vesting_schedule,
+        share_price_process)
     tax_diff_process = get_tax_diff_process(
-        len(share_price_process), yes_83b_scenario_result.tax_events, no_83b_scenario_result.tax_events)
+        len(share_price_process),
+        yes_83b_scenario_result.tax_events,
+        no_83b_scenario_result.tax_events)
     raw = sum(tax_diff_process)
     npv = get_npv(tax_diff_process, discount_rate)
-    election_83b_value = Election83bValue(
-        tax_diff_process, raw, npv)
+    election_83b_value = Election83bValue(tax_diff_process, raw, npv)
     scenario_result = ScenarioResult(
-        no_83b_scenario_result, yes_83b_scenario_result, election_83b_value)
+        no_83b_scenario_result,
+        yes_83b_scenario_result,
+        election_83b_value)
     return scenario_result
 
 
@@ -79,51 +103,83 @@ def get_tax_event(time_idx, tax_events):
 
 
 def run_83b_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, share_grant_count, vesting_schedule, share_price_process):
+        marginal_income_tax_rate,
+        marginal_long_term_capital_gains_rate,
+        share_grant_count,
+        employee_payment,
+        vesting_schedule,
+        share_price_process):
     vesting_events, tax_events, lots = get_83b_events_and_lots(
-        marginal_income_tax_rate, share_grant_count, vesting_schedule, share_price_process)
+        marginal_income_tax_rate,
+        share_grant_count,
+        employee_payment,
+        vesting_schedule,
+        share_price_process)
     if len(lots) != 0:
         capital_gains_tax_event = simulate_portfolio_liquidation(
-            marginal_long_term_capital_gains_rate, share_price_process, lots)
+            marginal_long_term_capital_gains_rate,
+            share_price_process,
+            lots)
         tax_events.append(capital_gains_tax_event)
     scenario_result = EventsLots(vesting_events, lots, tax_events)
     return scenario_result
 
 
-def get_83b_events_and_lots(marginal_income_tax_rate, share_grant_count, vesting_schedule, share_price_process):
+def get_83b_events_and_lots(marginal_income_tax_rate,
+                            share_grant_count,
+                            employee_payment,
+                            vesting_schedule,
+                            share_price_process):
     vesting_events = []
     tax_events = []
     lots = []
     for idx, count_vesting_shares in enumerate(vesting_schedule):
-        price_per_share = share_price_process[0]
+        basis_per_share = share_price_process[0]
         if idx == 0:
-            taxable_income = 1.0 * share_grant_count * price_per_share
-            income_tax = round(1.0 * taxable_income *
-                               marginal_income_tax_rate, 2)
-            income_tax_event = TaxEvent(
-                idx, taxable_income, TaxType.INCOME, income_tax)
-            tax_events.append(income_tax_event)
+            employee_payment_dollars = \
+                employee_payment.price_per_share * employee_payment.share_count
+            taxable_income = \
+                round(1.0 * share_grant_count * basis_per_share, 2) - \
+                employee_payment_dollars
+            if taxable_income != 0:
+                income_tax = round(1.0 * taxable_income *
+                                   marginal_income_tax_rate, 2)
+                income_tax_event = TaxEvent(
+                    idx, taxable_income, TaxType.INCOME, income_tax)
+                tax_events.append(income_tax_event)
         elif count_vesting_shares > 0:
             vesting_event = VestingEvent(idx, count_vesting_shares)
             vesting_events.append(vesting_event)
-            lot = Lot(idx, count_vesting_shares, price_per_share)
+            lot = Lot(idx, count_vesting_shares, basis_per_share)
             lots.append(lot)
     return vesting_events, tax_events, lots
 
 
 def run_no_83b_scenario(
-        marginal_income_tax_rate, marginal_long_term_capital_gains_rate, vesting_schedule, share_price_process):
+        marginal_income_tax_rate,
+        marginal_long_term_capital_gains_rate,
+        employee_payment,
+        vesting_schedule,
+        share_price_process):
     vesting_events, tax_events, lots = get_no_83b_events_and_lots(
-        marginal_income_tax_rate, vesting_schedule, share_price_process)
+        marginal_income_tax_rate,
+        vesting_schedule,
+        employee_payment,
+        share_price_process)
     if len(lots) != 0:
         capital_gains_tax_event = simulate_portfolio_liquidation(
-            marginal_long_term_capital_gains_rate, share_price_process, lots)
+            marginal_long_term_capital_gains_rate,
+            share_price_process,
+            lots)
         tax_events.append(capital_gains_tax_event)
     scenario_result = EventsLots(vesting_events, lots, tax_events)
     return scenario_result
 
 
-def get_no_83b_events_and_lots(marginal_income_tax_rate, vesting_schedule, share_price_process):
+def get_no_83b_events_and_lots(marginal_income_tax_rate,
+                               vesting_schedule,
+                               employee_payment,
+                               share_price_process):
     vesting_events = []
     tax_events = []
     lots = []
@@ -133,12 +189,16 @@ def get_no_83b_events_and_lots(marginal_income_tax_rate, vesting_schedule, share
             vesting_events.append(vesting_event)
 
             price_per_share = share_price_process[idx]
-            taxable_income = count_vesting_shares * price_per_share
+            income = count_vesting_shares * price_per_share
+            employee_payment_dollars = \
+                employee_payment.price_per_share * employee_payment.share_count
+            taxable_income = income - employee_payment_dollars
             income_tax = round(1.0 * taxable_income *
                                marginal_income_tax_rate, 2)
-            income_tax_event = TaxEvent(
-                idx, taxable_income, TaxType.INCOME, income_tax)
-            tax_events.append(income_tax_event)
+            if income_tax != 0:
+                income_tax_event = TaxEvent(
+                    idx, taxable_income, TaxType.INCOME, income_tax)
+                tax_events.append(income_tax_event)
 
             lot = Lot(idx, count_vesting_shares, price_per_share)
             lots.append(lot)
@@ -154,7 +214,9 @@ def get_portfolio(lots, liquidation_share_price):
     return portfolio_value, portfolio_basis
 
 
-def simulate_portfolio_liquidation(marginal_long_term_capital_gains_rate, share_price_process, lots):
+def simulate_portfolio_liquidation(marginal_long_term_capital_gains_rate,
+                                   share_price_process,
+                                   lots):
     liquidate_time_idx = len(share_price_process) - 1
     liquidation_share_price = share_price_process[-1]
     portfolio_value, portfolio_basis = get_portfolio(
@@ -163,5 +225,8 @@ def simulate_portfolio_liquidation(marginal_long_term_capital_gains_rate, share_
     capital_gains_tax = round(
         1.0 * gain * marginal_long_term_capital_gains_rate, 2)
     capital_gains_tax_event = TaxEvent(
-        liquidate_time_idx, gain, TaxType.CAPITAL_GAINS_LONG_TERM, capital_gains_tax)
+        liquidate_time_idx,
+        gain,
+        TaxType.CAPITAL_GAINS_LONG_TERM,
+        capital_gains_tax)
     return capital_gains_tax_event
