@@ -10,6 +10,12 @@ from src.events.tax_event import TaxType
 """
 
 
+"""
+    Additional cases:
+    - 83(b): Employee pays FMV at grant, vests a fraction, is terminated, company repurchases
+"""
+
+
 def test_simulate_irb_2012_28_examples_1_2():
     marginal_income_tax_rate = 0.37
     marginal_long_term_capital_gains_rate = 0.20
@@ -77,6 +83,62 @@ def test_simulate_irb_2012_28_examples_1_2():
         0.0, 0.0, 5550.0, -3000.0]
     assert election_83b_value.raw == 2550.0
     assert election_83b_value.npv == 2420.62
+
+
+"""
+    https://www.irs.gov/irb/2012-28_IRB#RR-2012-19
+    Example 3: 83(b)
+    1) employee pays FMV at grant
+    2) termination before vest
+    3) company repurchases
+"""
+
+
+def test_simulate_irb_2012_28_example_3():
+    marginal_income_tax_rate = 0.37
+    marginal_long_term_capital_gains_rate = 0.20
+    discount_rate = 0.06
+    vesting_schedule = [0, 0, 0, 0]
+    share_grant_count = 25_000
+    employee_purchase = EmployeePurchase(1, 25_000)
+    share_price_process = [1, 1, 1.6, 2.4]
+
+    results = run_scenario(marginal_income_tax_rate,
+                           marginal_long_term_capital_gains_rate,
+                           discount_rate,
+                           share_grant_count,
+                           employee_purchase,
+                           vesting_schedule,
+                           share_price_process)
+
+    yes_83b_events_and_lots = results.yes_83b_events_and_lots
+
+    yes_83b_vesting_events = yes_83b_events_and_lots.vesting_events
+    assert len(yes_83b_vesting_events) == 0
+
+    yes_83b_lots = yes_83b_events_and_lots.lots
+    assert len(yes_83b_lots) == 0
+
+    yes_83b_tax_events = yes_83b_events_and_lots.tax_events
+    assert len(yes_83b_tax_events) == 0
+
+    no_83b_events_and_lots = results.no_83b_events_and_lots
+
+    no_83b_vesting_events = no_83b_events_and_lots.vesting_events
+    assert len(no_83b_vesting_events) == 0
+
+    no_83b_lots = no_83b_events_and_lots.lots
+    assert len(no_83b_lots) == 0
+
+    no_83b_tax_events = no_83b_events_and_lots.tax_events
+    assert len(no_83b_tax_events) == 0
+
+    election_83b_value = results.election_83b_value
+
+    assert election_83b_value.tax_diff_process == [
+        0.0, 0.0, 0.0, 0.0]
+    assert election_83b_value.raw == 0.0
+    assert election_83b_value.npv == 0.0
 
 
 """
