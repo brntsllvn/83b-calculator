@@ -35,7 +35,7 @@ class ScenarioResult:
 
 
 @dataclass
-class EmployeePayment:
+class EmployeePurchase:
     price_per_share: float
     share_count: int
 
@@ -45,20 +45,20 @@ def run_scenario(
         marginal_long_term_capital_gains_rate,
         discount_rate,
         share_grant_count,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process):
     yes_83b_scenario_result = run_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,
         share_grant_count,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process)
     no_83b_scenario_result = run_no_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process)
     tax_diff_process = get_tax_diff_process(
@@ -106,13 +106,13 @@ def run_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,
         share_grant_count,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process):
     vesting_events, tax_events, lots = get_83b_events_and_lots(
         marginal_income_tax_rate,
         share_grant_count,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process)
     if len(lots) != 0:
@@ -127,7 +127,7 @@ def run_83b_scenario(
 
 def get_83b_events_and_lots(marginal_income_tax_rate,
                             share_grant_count,
-                            employee_payment,
+                            employee_purchase,
                             vesting_schedule,
                             share_price_process):
     vesting_events = []
@@ -136,11 +136,11 @@ def get_83b_events_and_lots(marginal_income_tax_rate,
     for idx, count_vesting_shares in enumerate(vesting_schedule):
         basis_per_share = share_price_process[0]
         if idx == 0:
-            employee_payment_dollars = \
-                employee_payment.price_per_share * employee_payment.share_count
-            taxable_income = \
-                round(1.0 * share_grant_count * basis_per_share, 2) - \
-                employee_payment_dollars
+            employee_purchase_price = \
+                employee_purchase.price_per_share * employee_purchase.share_count
+            fair_market_value = round(
+                1.0 * share_grant_count * basis_per_share, 2)
+            taxable_income = fair_market_value - employee_purchase_price
             if taxable_income != 0:
                 income_tax = round(1.0 * taxable_income *
                                    marginal_income_tax_rate, 2)
@@ -158,13 +158,13 @@ def get_83b_events_and_lots(marginal_income_tax_rate,
 def run_no_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,
-        employee_payment,
+        employee_purchase,
         vesting_schedule,
         share_price_process):
     vesting_events, tax_events, lots = get_no_83b_events_and_lots(
         marginal_income_tax_rate,
         vesting_schedule,
-        employee_payment,
+        employee_purchase,
         share_price_process)
     if len(lots) != 0:
         capital_gains_tax_event = simulate_portfolio_liquidation(
@@ -178,7 +178,7 @@ def run_no_83b_scenario(
 
 def get_no_83b_events_and_lots(marginal_income_tax_rate,
                                vesting_schedule,
-                               employee_payment,
+                               employee_purchase,
                                share_price_process):
     vesting_events = []
     tax_events = []
@@ -189,10 +189,10 @@ def get_no_83b_events_and_lots(marginal_income_tax_rate,
             vesting_events.append(vesting_event)
 
             price_per_share = share_price_process[idx]
-            income = count_vesting_shares * price_per_share
-            employee_payment_dollars = \
-                employee_payment.price_per_share * employee_payment.share_count
-            taxable_income = income - employee_payment_dollars
+            fair_market_value = count_vesting_shares * price_per_share
+            employee_purchase_price = employee_purchase.price_per_share * \
+                employee_purchase.share_count
+            taxable_income = fair_market_value - employee_purchase_price
             income_tax = round(1.0 * taxable_income *
                                marginal_income_tax_rate, 2)
             if income_tax != 0:

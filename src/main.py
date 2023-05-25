@@ -16,7 +16,7 @@ def main():
                            marginal_long_term_capital_gains_rate,
                            discount_rate,
                            share_grant_count,
-                           employee_payment,
+                           employee_purchase,
                            vesting_schedule,
                            share_price_process)
     pp(results, depth=2, indent=4)

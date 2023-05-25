@@ -1,6 +1,6 @@
 import json
 
-from src.execute.simulate import run_scenario, EmployeePayment
+from src.execute.simulate import run_scenario, EmployeePurchase
 from src.events.tax_event import TaxType
 
 """
@@ -16,14 +16,14 @@ def test_simulate_irb_2012_28_examples_1_2():
     discount_rate = 0.06
     vesting_schedule = [0, 0, 25_000, 0]
     share_grant_count = sum(vesting_schedule)
-    employee_payment = EmployeePayment(1, 25_000)
+    employee_purchase = EmployeePurchase(1, 25_000)
     share_price_process = [1, 1, 1.6, 2.4]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
                            discount_rate,
                            share_grant_count,
-                           employee_payment,
+                           employee_purchase,
                            vesting_schedule,
                            share_price_process)
 
@@ -92,14 +92,14 @@ def test_simulate_irb_2012_28_examples_4_5():
     discount_rate = 0.06
     vesting_schedule = [0, 0, 25_000, 0]
     share_grant_count = sum(vesting_schedule)
-    employee_payment = EmployeePayment(0, 0)
+    employee_purchase = EmployeePurchase(0, 0)
     share_price_process = [1, 1, 1.6, 2.4]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
                            discount_rate,
                            share_grant_count,
-                           employee_payment,
+                           employee_purchase,
                            vesting_schedule,
                            share_price_process)
 
@@ -171,14 +171,14 @@ def test_simulate_irb_2012_28_examples_6():
     discount_rate = 0.06
     share_grant_count = 25_000
     vesting_schedule = [0, 0, 0, 0]
-    employee_payment = EmployeePayment(0, 0)
+    employee_purchase = EmployeePurchase(0, 0)
     share_price_process = [1, 1, 1.6, 2.4]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
                            discount_rate,
                            share_grant_count,
-                           employee_payment,
+                           employee_purchase,
                            vesting_schedule,
                            share_price_process)
 
