@@ -49,9 +49,9 @@ def test_simulate_irb_2012_28_examples_1_2():
     yes_83b_tax_events = yes_83b_events_and_lots.tax_events
     assert len(yes_83b_tax_events) == 1
     assert yes_83b_tax_events[0].time_idx == 3
-    assert yes_83b_tax_events[0].taxable_amount == 35_000
+    assert yes_83b_tax_events[0].taxable_dollars == 35_000
     assert yes_83b_tax_events[0].tax_type == TaxType.CAPITAL_GAINS_LONG_TERM
-    assert yes_83b_tax_events[0].tax_amount == 7_000
+    assert yes_83b_tax_events[0].tax_dollars == 7_000
 
     no_83b_events_and_lots = results.no_83b_events_and_lots
 
@@ -69,13 +69,13 @@ def test_simulate_irb_2012_28_examples_1_2():
     no_83b_tax_events = no_83b_events_and_lots.tax_events
     assert len(no_83b_tax_events) == 2
     assert no_83b_tax_events[0].time_idx == 2
-    assert no_83b_tax_events[0].taxable_amount == 15_000
+    assert no_83b_tax_events[0].taxable_dollars == 15_000
     assert no_83b_tax_events[0].tax_type == TaxType.INCOME
-    assert no_83b_tax_events[0].tax_amount == 5_550
+    assert no_83b_tax_events[0].tax_dollars == 5_550
     assert no_83b_tax_events[1].time_idx == 3
-    assert no_83b_tax_events[1].taxable_amount == 20_000
+    assert no_83b_tax_events[1].taxable_dollars == 20_000
     assert no_83b_tax_events[1].tax_type == TaxType.CAPITAL_GAINS_LONG_TERM
-    assert no_83b_tax_events[1].tax_amount == 4_000
+    assert no_83b_tax_events[1].tax_dollars == 4_000
 
     election_83b_value = results.election_83b_value
 
@@ -181,13 +181,13 @@ def test_simulate_irb_2012_28_examples_4_5():
     yes_83b_tax_events = yes_83b_events_and_lots.tax_events
     assert len(yes_83b_tax_events) == 2
     assert yes_83b_tax_events[0].time_idx == 0
-    assert yes_83b_tax_events[0].taxable_amount == 25_000
+    assert yes_83b_tax_events[0].taxable_dollars == 25_000
     assert yes_83b_tax_events[0].tax_type == TaxType.INCOME
-    assert yes_83b_tax_events[0].tax_amount == 9_250
+    assert yes_83b_tax_events[0].tax_dollars == 9_250
     assert yes_83b_tax_events[1].time_idx == 3
-    assert yes_83b_tax_events[1].taxable_amount == 35_000
+    assert yes_83b_tax_events[1].taxable_dollars == 35_000
     assert yes_83b_tax_events[1].tax_type == TaxType.CAPITAL_GAINS_LONG_TERM
-    assert yes_83b_tax_events[1].tax_amount == 7_000
+    assert yes_83b_tax_events[1].tax_dollars == 7_000
 
     no_83b_events_and_lots = results.no_83b_events_and_lots
 
@@ -205,13 +205,13 @@ def test_simulate_irb_2012_28_examples_4_5():
     no_83b_tax_events = no_83b_events_and_lots.tax_events
     assert len(no_83b_tax_events) == 2
     assert no_83b_tax_events[0].time_idx == 2
-    assert no_83b_tax_events[0].taxable_amount == 40_000
+    assert no_83b_tax_events[0].taxable_dollars == 40_000
     assert no_83b_tax_events[0].tax_type == TaxType.INCOME
-    assert no_83b_tax_events[0].tax_amount == 14_800
+    assert no_83b_tax_events[0].tax_dollars == 14_800
     assert no_83b_tax_events[1].time_idx == 3
-    assert no_83b_tax_events[1].taxable_amount == 20_000
+    assert no_83b_tax_events[1].taxable_dollars == 20_000
     assert no_83b_tax_events[1].tax_type == TaxType.CAPITAL_GAINS_LONG_TERM
-    assert no_83b_tax_events[1].tax_amount == 4_000
+    assert no_83b_tax_events[1].tax_dollars == 4_000
 
     election_83b_value = results.election_83b_value
 
@@ -255,9 +255,9 @@ def test_simulate_irb_2012_28_examples_6():
     yes_83b_tax_events = yes_83b_events_and_lots.tax_events
     assert len(yes_83b_tax_events) == 1
     assert yes_83b_tax_events[0].time_idx == 0
-    assert yes_83b_tax_events[0].taxable_amount == 25_000
+    assert yes_83b_tax_events[0].taxable_dollars == 25_000
     assert yes_83b_tax_events[0].tax_type == TaxType.INCOME
-    assert yes_83b_tax_events[0].tax_amount == 9_250
+    assert yes_83b_tax_events[0].tax_dollars == 9_250
 
     no_83b_events_and_lots = results.no_83b_events_and_lots
 

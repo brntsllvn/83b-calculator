@@ -11,6 +11,6 @@ class TaxType(IntEnum):
 @dataclass
 class TaxEvent:
     time_idx: int
-    taxable_amount: float
+    taxable_dollars: float
     tax_type: TaxType
-    tax_amount: float
+    tax_dollars: float

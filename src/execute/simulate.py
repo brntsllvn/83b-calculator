@@ -92,7 +92,7 @@ def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events
 def subtract_tax_events(time_idx, yes_83b_tax_events, no_83b_tax_events):
     yes_83b_tax_event = get_tax_event(time_idx, yes_83b_tax_events)
     no_83b_tax_event = get_tax_event(time_idx, no_83b_tax_events)
-    return no_83b_tax_event.tax_amount - yes_83b_tax_event.tax_amount
+    return no_83b_tax_event.tax_dollars - yes_83b_tax_event.tax_dollars
 
 
 def get_tax_event(time_idx, tax_events):
