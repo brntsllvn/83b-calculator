@@ -39,6 +39,8 @@ class EmployeePurchase:
     price_per_share: float
     share_count: int
 
+# TODO: implement employment process
+
 
 def run_scenario(
         marginal_income_tax_rate,
@@ -47,7 +49,8 @@ def run_scenario(
         share_grant_count,
         employee_purchase,
         vesting_schedule,
-        share_price_process):
+        share_price_process,
+        employment_process):
     yes_83b_scenario_result = run_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,

@@ -2,6 +2,7 @@ import json
 
 from src.execute.simulate import run_scenario, EmployeePurchase
 from src.events.tax_event import TaxType
+from src.events.employment_event import EmploymentType
 
 """
     https://www.irs.gov/irb/2012-28_IRB#RR-2012-19
@@ -24,6 +25,11 @@ def test_simulate_irb_2012_28_examples_1_2():
     share_grant_count = sum(vesting_schedule)
     employee_purchase = EmployeePurchase(1, 25_000)
     share_price_process = [1, 1, 1.6, 2.4]
+    employment_process = [
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
@@ -31,7 +37,8 @@ def test_simulate_irb_2012_28_examples_1_2():
                            share_grant_count,
                            employee_purchase,
                            vesting_schedule,
-                           share_price_process)
+                           share_price_process,
+                           employment_process)
 
     yes_83b_events_and_lots = results.yes_83b_events_and_lots
 
@@ -102,6 +109,11 @@ def test_simulate_irb_2012_28_example_3():
     share_grant_count = 25_000
     employee_purchase = EmployeePurchase(1, 25_000)
     share_price_process = [1, 1, 1.6, 2.4]
+    employment_process = [
+        EmploymentType.EMPLOYED,
+        EmploymentType.TERMINATED,
+        EmploymentType.UNEMPLOYED,
+        EmploymentType.UNEMPLOYED]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
@@ -109,7 +121,8 @@ def test_simulate_irb_2012_28_example_3():
                            share_grant_count,
                            employee_purchase,
                            vesting_schedule,
-                           share_price_process)
+                           share_price_process,
+                           employment_process)
 
     yes_83b_events_and_lots = results.yes_83b_events_and_lots
 
@@ -156,6 +169,11 @@ def test_simulate_irb_2012_28_examples_4_5():
     share_grant_count = sum(vesting_schedule)
     employee_purchase = EmployeePurchase(0, 0)
     share_price_process = [1, 1, 1.6, 2.4]
+    employment_process = [
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED,
+        EmploymentType.EMPLOYED]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
@@ -163,7 +181,8 @@ def test_simulate_irb_2012_28_examples_4_5():
                            share_grant_count,
                            employee_purchase,
                            vesting_schedule,
-                           share_price_process)
+                           share_price_process,
+                           employment_process)
 
     yes_83b_events_and_lots = results.yes_83b_events_and_lots
 
@@ -235,6 +254,11 @@ def test_simulate_irb_2012_28_examples_6():
     vesting_schedule = [0, 0, 0, 0]
     employee_purchase = EmployeePurchase(0, 0)
     share_price_process = [1, 1, 1.6, 2.4]
+    employment_process = [
+        EmploymentType.EMPLOYED,
+        EmploymentType.TERMINATED,
+        EmploymentType.UNEMPLOYED,
+        EmploymentType.UNEMPLOYED]
 
     results = run_scenario(marginal_income_tax_rate,
                            marginal_long_term_capital_gains_rate,
@@ -242,7 +266,8 @@ def test_simulate_irb_2012_28_examples_6():
                            share_grant_count,
                            employee_purchase,
                            vesting_schedule,
-                           share_price_process)
+                           share_price_process,
+                           employment_process)
 
     yes_83b_events_and_lots = results.yes_83b_events_and_lots
 
