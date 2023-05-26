@@ -1,6 +1,7 @@
 import json
 
-from src.execute.simulate import run_scenario, EmployeePurchase
+from src.execute.simulate import (
+    run_scenario, EmployeePurchase, ScenarioMetadata, Scenario)
 from src.events.share_event import ShareEventType
 from src.events.tax_event import TaxType
 from src.events.employment_event import EmploymentType
@@ -15,31 +16,30 @@ from src.events.employment_event import EmploymentType
 """
     Additional cases:
     - 83(b): Employee pays FMV at grant, vests a fraction, is terminated, company repurchases
+    - Cooley examples: 
+    -- 3 year:
+        vesting_schedule = [0, 100_000, 0]
+        share_price_process = [0.01, 1.00, 5.00]
+    -- 6 year:
+        vesting_schedule = [0, 25_000, 25_000, 25_000, 25_000, 0]
+        share_price_process = [0.01, 0.05, 0.25, 1.25, 2.45, 5.00]
 """
 
 
 def test_simulate_irb_2012_28_examples_1_2():
-    marginal_income_tax_rate = 0.37
-    marginal_long_term_capital_gains_rate = 0.20
-    discount_rate = 0.06
-    vesting_schedule = [0, 0, 25_000, 0]
-    share_grant_count = sum(vesting_schedule)
-    employee_purchase = EmployeePurchase(1, 25_000)
-    share_price_process = [1, 1, 1.6, 2.4]
-    employment_process = [
-        EmploymentType.EMPLOYED,
-        EmploymentType.EMPLOYED,
-        EmploymentType.EMPLOYED,
-        EmploymentType.EMPLOYED]
+    metadata = ScenarioMetadata(
+        marginal_income_tax_rate=0.37,
+        marginal_long_term_capital_gains_rate=0.20,
+        discount_rate=0.06
+    )
 
-    results = run_scenario(marginal_income_tax_rate,
-                           marginal_long_term_capital_gains_rate,
-                           discount_rate,
-                           share_grant_count,
-                           employee_purchase,
-                           vesting_schedule,
-                           share_price_process,
-                           employment_process)
+    scenario = Scenario(
+        vesting_schedule=[0, 0, 25_000, 0],
+        share_price_process=[1, 1, 1.6, 2.4],
+        employment_process=[1, 1, 1, 1],
+        employee_purchase=EmployeePurchase(1, 25_000))
+
+    results = run_scenario(scenario, metadata)
 
     yes_83b_events_and_lots = results.yes_83b_events_and_lots
 

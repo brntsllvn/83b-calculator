@@ -6,6 +6,28 @@ from src.events.share_event import ShareEvent, ShareEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.portfolio import Portfolio
 from src.state.lot import Lot
+from src.events.employment_event import EmploymentType
+
+
+@dataclass
+class ScenarioMetadata:
+    marginal_income_tax_rate: float
+    marginal_long_term_capital_gains_rate: float
+    discount_rate: float
+
+
+@dataclass
+class EmployeePurchase:
+    price_per_share: float
+    share_count: int
+
+
+@dataclass
+class Scenario:
+    vesting_schedule: [int]
+    share_price_process: [float]
+    employment_process: [EmploymentType]
+    employee_purchase: EmployeePurchase = EmployeePurchase(0, 0,)
 
 
 @dataclass
@@ -28,43 +50,28 @@ class ScenarioResult:
     yes_83b_events_and_lots: EventsLots
     election_83b_value: Election83bValue
 
-
-@dataclass
-class EmployeePurchase:
-    price_per_share: float
-    share_count: int
-
 # TODO: implement employment process
 
 
-def run_scenario(
-        marginal_income_tax_rate,
-        marginal_long_term_capital_gains_rate,
-        discount_rate,
-        share_grant_count,
-        employee_purchase,
-        vesting_schedule,
-        share_price_process,
-        employment_process):
+def run_scenario(scenario, metadata):
     yes_83b_scenario_result = run_83b_scenario(
-        marginal_income_tax_rate,
-        marginal_long_term_capital_gains_rate,
-        share_grant_count,
-        employee_purchase,
-        vesting_schedule,
-        share_price_process)
+        metadata.marginal_income_tax_rate,
+        metadata.marginal_long_term_capital_gains_rate,
+        scenario.employee_purchase,
+        scenario.vesting_schedule,
+        scenario.share_price_process)
     no_83b_scenario_result = run_no_83b_scenario(
-        marginal_income_tax_rate,
-        marginal_long_term_capital_gains_rate,
-        employee_purchase,
-        vesting_schedule,
-        share_price_process)
+        metadata.marginal_income_tax_rate,
+        metadata.marginal_long_term_capital_gains_rate,
+        scenario.employee_purchase,
+        scenario.vesting_schedule,
+        scenario.share_price_process)
     tax_diff_process = get_tax_diff_process(
-        len(share_price_process),
+        len(scenario.share_price_process),
         yes_83b_scenario_result.tax_events,
         no_83b_scenario_result.tax_events)
     raw = sum(tax_diff_process)
-    npv = get_npv(tax_diff_process, discount_rate)
+    npv = get_npv(tax_diff_process, metadata.discount_rate)
     election_83b_value = Election83bValue(tax_diff_process, raw, npv)
     scenario_result = ScenarioResult(
         no_83b_scenario_result,
@@ -103,13 +110,11 @@ def get_tax_event(time_idx, tax_events):
 def run_83b_scenario(
         marginal_income_tax_rate,
         marginal_long_term_capital_gains_rate,
-        share_grant_count,
         employee_purchase,
         vesting_schedule,
         share_price_process):
     vesting_events, tax_events, lots = get_83b_events_and_lots(
         marginal_income_tax_rate,
-        share_grant_count,
         employee_purchase,
         vesting_schedule,
         share_price_process)
@@ -124,7 +129,6 @@ def run_83b_scenario(
 
 
 def get_83b_events_and_lots(marginal_income_tax_rate,
-                            share_grant_count,
                             employee_purchase,
                             vesting_schedule,
                             share_price_process):
@@ -132,6 +136,7 @@ def get_83b_events_and_lots(marginal_income_tax_rate,
     tax_events = []
     lots = []
     for idx, count_vesting_shares in enumerate(vesting_schedule):
+        share_grant_count = sum(vesting_schedule)
         basis_per_share = share_price_process[0]
         if idx == 0:
             employee_purchase_price = \
