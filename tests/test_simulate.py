@@ -68,51 +68,56 @@ def test_simulate_irb_2012_28_examples_1_2():
     assert yes_83b_tax_events[0] == TaxEvent(
         3, 35_000, TaxType.CAPITAL_GAINS_LONG_TERM, 7_000)
 
-    # no_83b_result = results.no_83b_result
+    no_83b_result = results.no_83b_result
+    no_83b_share_events = no_83b_result.share_events
+    assert len(no_83b_share_events) == 4
+    assert no_83b_share_events[0] == ShareEvent(
+        0, ShareEventType.GRANT, 25_000, 1, False
+    )
+    assert no_83b_share_events[1] == ShareEvent(
+        0, ShareEventType.PURCHASE, 25_000, 1, False
+    )
+    assert no_83b_share_events[2] == ShareEvent(
+        2, ShareEventType.VEST, 25_000, 1.6, True
+    )
+    assert no_83b_share_events[3] == ShareEvent(
+        3, ShareEventType.SALE, 25_000, 2.4, True
+    )
 
-    # no_83b_share_events = no_83b_result.share_events
-    # assert len(no_83b_share_events) == 4
-    # assert yes_83b_share_events[0] == ShareEvent(
-    #     0, ShareEventType.GRANT, 25_000, 1, True
-    # )
-    # assert yes_83b_share_events[1] == ShareEvent(
-    #     0, ShareEventType.PURCHASE, 25_000, 1, False
-    # )
-    # assert yes_83b_share_events[2] == ShareEvent(
-    #     2, ShareEventType.VEST, 25_000, 1.6, False
-    # )
-    # assert yes_83b_share_events[3] == ShareEvent(
-    #     3, ShareEventType.SALE, 25_000, 2.4, True
-    # )
-    # assert no_83b_share_events[0].time_idx == 2
-    # assert no_83b_share_events[0].share_event_type == ShareEventType.VEST
-    # assert no_83b_share_events[0].share_count == 25_000
-    # assert no_83b_share_events[0].share_price == 1.6
-    # assert no_83b_share_events[0].taxable == True
+    no_83b_lots = no_83b_result.lots
+    assert len(no_83b_lots) == 1
+    assert no_83b_lots[0] == Lot(2, 25_000, 1.6)
 
-    # no_83b_lots = no_83b_result.lots
-    # assert len(no_83b_lots) == 1
-    # assert no_83b_lots[0].time_idx == 2
-    # assert no_83b_lots[0].share_count == 25_000
-    # assert no_83b_lots[0].basis_per_share == 1.6
+    no_83b_tax_events = no_83b_result.tax_events
+    assert len(no_83b_tax_events) == 2
+    assert no_83b_tax_events[0] == TaxEvent(2, 15_000, TaxType.INCOME, 5_550)
+    assert no_83b_tax_events[1] == TaxEvent(
+        3, 20_000, TaxType.CAPITAL_GAINS_LONG_TERM, 4_000)
 
-    # no_83b_tax_events = no_83b_result.tax_events
-    # assert len(no_83b_tax_events) == 2
-    # assert no_83b_tax_events[0].time_idx == 2
-    # assert no_83b_tax_events[0].taxable_dollars == 15_000
-    # assert no_83b_tax_events[0].tax_type == TaxType.INCOME
-    # assert no_83b_tax_events[0].tax_dollars == 5_550
-    # assert no_83b_tax_events[1].time_idx == 3
-    # assert no_83b_tax_events[1].taxable_dollars == 20_000
-    # assert no_83b_tax_events[1].tax_type == TaxType.CAPITAL_GAINS_LONG_TERM
-    # assert no_83b_tax_events[1].tax_dollars == 4_000
+    election_83b_value = results.election_83b_value
+    assert election_83b_value.tax_diff_process == [
+        0.0, 0.0, 5550.0, -3000.0]
+    assert election_83b_value.raw_dollars == 2550.0
+    assert election_83b_value.npv_dollars == 2420.62
 
-    # election_83b_value = results.election_83b_value
 
-    # assert election_83b_value.tax_diff_process == [
-    #     0.0, 0.0, 5550.0, -3000.0]
-    # assert election_83b_value.raw_dollars == 2550.0
-    # assert election_83b_value.npv_dollars == 2420.62
+"""
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    TODO: refactor no_83b and yes_83b to share as much as possible
+    
+    TODO: 
+    - GRANT, PURCHASE, VEST, SALE share events are identical <-- no basis here
+    - Difference betwen yes_83b and no_83b is basis <-- tax events and lots
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+"""
 
 
 """
