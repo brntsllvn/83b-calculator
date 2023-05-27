@@ -7,9 +7,9 @@ from src.events.tax_event import TaxEvent, TaxType
 from src.state.portfolio import Portfolio
 from src.state.lot import Lot
 from src.events.employment_event import EmploymentType
-from src.execute.yes_83b import run_yes_83b_scenario
-from src.execute.no_83b import run_no_83b_scenario
-from src.execute.shared import Result
+from src.execute.yes_83b import execute_yes_83b
+from src.execute.no_83b import execute_no_83b
+from src.execute.shared import CaseResult, run_case
 
 
 @dataclass
@@ -42,36 +42,40 @@ class Election83bValue:
 
 @dataclass
 class ScenarioResult:
-    no_83b_result: Result
-    yes_83b_result: Result
+    no_83b_result: CaseResult
+    yes_83b_result: CaseResult
     election_83b_value: Election83bValue
 
 # TODO: implement employment process
 
 
 def run_scenario(scenario, metadata):
-    yes_83b_scenario_result = run_yes_83b_scenario(
+    yes_83b_case_result = run_case(
         metadata.marginal_income_tax_rate,
         metadata.marginal_long_term_capital_gains_rate,
         scenario.employee_purchase,
         scenario.vesting_schedule,
-        scenario.share_price_process)
-    no_83b_scenario_result = run_no_83b_scenario(
+        scenario.share_price_process,
+        execute_yes_83b
+    )
+    no_83b_case_result = run_case(
         metadata.marginal_income_tax_rate,
         metadata.marginal_long_term_capital_gains_rate,
         scenario.employee_purchase,
         scenario.vesting_schedule,
-        scenario.share_price_process)
+        scenario.share_price_process,
+        execute_no_83b
+    )
     tax_diff_process = get_tax_diff_process(
         len(scenario.share_price_process),
-        yes_83b_scenario_result.tax_events,
-        no_83b_scenario_result.tax_events)
+        yes_83b_case_result.tax_events,
+        no_83b_case_result.tax_events)
     raw = sum(tax_diff_process)
     npv = get_npv(tax_diff_process, metadata.discount_rate)
     election_83b_value = Election83bValue(tax_diff_process, raw, npv)
     scenario_result = ScenarioResult(
-        no_83b_scenario_result,
-        yes_83b_scenario_result,
+        no_83b_case_result,
+        yes_83b_case_result,
         election_83b_value)
     return scenario_result
 

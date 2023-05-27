@@ -3,13 +3,28 @@ from dataclasses import dataclass
 from src.events.share_event import ShareEvent, ShareEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.lot import Lot
+from src.execute.case_result import CaseResult
 
 
-@dataclass
-class Result:
-    share_events: [ShareEvent]
-    lots: [Lot]
-    tax_events: [TaxEvent]
+def run_case(marginal_income_tax_rate,
+             marginal_long_term_capital_gains_rate,
+             employee_purchase,
+             vesting_schedule,
+             share_price_process,
+             events_and_lots_fn):
+    case_result = events_and_lots_fn(
+        marginal_income_tax_rate,
+        employee_purchase,
+        vesting_schedule,
+        share_price_process)
+    if len(case_result.lots) != 0:
+        sale_event, capital_gains_tax_event = get_liquidation_events(
+            marginal_long_term_capital_gains_rate,
+            share_price_process,
+            case_result.lots)
+        case_result.share_events.append(sale_event)
+        case_result.tax_events.append(capital_gains_tax_event)
+    return case_result
 
 
 def get_portfolio(lots, liquidation_share_price):

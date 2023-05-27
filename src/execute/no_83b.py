@@ -1,36 +1,14 @@
-from src.execute.shared import Result
+from src.execute.shared import CaseResult
 from src.events.share_event import ShareEvent, ShareEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.lot import Lot
 from src.execute.shared import get_liquidation_events
 
 
-def run_no_83b_scenario(
-        marginal_income_tax_rate,
-        marginal_long_term_capital_gains_rate,
-        employee_purchase,
-        vesting_schedule,
-        share_price_process):
-    share_events, tax_events, lots = _get_events_and_lots(
-        marginal_income_tax_rate,
-        vesting_schedule,
-        employee_purchase,
-        share_price_process)
-    if len(lots) != 0:
-        sale_event, capital_gains_tax_event = get_liquidation_events(
-            marginal_long_term_capital_gains_rate,
-            share_price_process,
-            lots)
-        share_events.append(sale_event)
-        tax_events.append(capital_gains_tax_event)
-    scenario_result = Result(share_events, lots, tax_events)
-    return scenario_result
-
-
-def _get_events_and_lots(marginal_income_tax_rate,
-                         vesting_schedule,
-                         employee_purchase,
-                         share_price_process):
+def execute_no_83b(marginal_income_tax_rate,
+                   employee_purchase,
+                   vesting_schedule,
+                   share_price_process):
     share_events = []
     tax_events = []
     lots = []
@@ -65,7 +43,8 @@ def _get_events_and_lots(marginal_income_tax_rate,
                                    basis_per_share)
 
     share_events.extend(vesting_events)
-    return share_events, tax_events, lots
+    case_result = CaseResult(share_events, lots, tax_events)
+    return case_result
 
 
 def _calculate_lots_and_events(marginal_income_tax_rate,
