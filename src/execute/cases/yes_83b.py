@@ -35,6 +35,30 @@ def execute_yes_83b(marginal_income_tax_rate,
         )
         share_events.append(purchase_event)
 
+    lots, vesting_events, tax_events = \
+        _yes_83b_calculate_lots_and_events(
+            marginal_income_tax_rate,
+            employee_purchase,
+            vesting_schedule,
+            share_price_process,
+            basis_per_share,
+            share_grant_count
+        )
+
+    share_events.extend(vesting_events)
+    case_result = CaseResult(share_events, lots, tax_events)
+    return case_result
+
+
+def _yes_83b_calculate_lots_and_events(marginal_income_tax_rate,
+                                       employee_purchase,
+                                       vesting_schedule,
+                                       share_price_process,
+                                       basis_per_share,
+                                       share_grant_count):
+    vesting_events = []
+    lots = []
+    tax_events = []
     grant_tax_event = _get_grant_tax_event(
         marginal_income_tax_rate,
         employee_purchase,
@@ -44,19 +68,6 @@ def execute_yes_83b(marginal_income_tax_rate,
     if grant_tax_event != None:
         tax_events.append(grant_tax_event)
 
-    lots, vesting_events = _get_lots_and_vesting_events(
-        vesting_schedule, share_price_process, basis_per_share)
-
-    share_events.extend(vesting_events)
-    case_result = CaseResult(share_events, lots, tax_events)
-    return case_result
-
-
-def _get_lots_and_vesting_events(vesting_schedule,
-                                 share_price_process,
-                                 basis_per_share):
-    vesting_events = []
-    lots = []
     for idx, count_vesting_shares in enumerate(vesting_schedule):
         if count_vesting_shares > 0:
             vesting_event = ShareEvent(
@@ -68,7 +79,7 @@ def _get_lots_and_vesting_events(vesting_schedule,
             vesting_events.append(vesting_event)
             lot = Lot(idx, count_vesting_shares, basis_per_share)
             lots.append(lot)
-    return lots, vesting_events
+    return lots, vesting_events, tax_events
 
 
 def _get_grant_tax_event(marginal_income_tax_rate,

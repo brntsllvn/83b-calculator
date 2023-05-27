@@ -36,22 +36,22 @@ def execute_no_83b(marginal_income_tax_rate,
         share_events.append(purchase_event)
 
     lots, vesting_events, tax_events = \
-        _calculate_lots_and_events(marginal_income_tax_rate,
-                                   vesting_schedule,
-                                   share_price_process,
-                                   employee_purchase,
-                                   basis_per_share)
+        _no_83b_calculate_lots_and_events(marginal_income_tax_rate,
+                                          vesting_schedule,
+                                          share_price_process,
+                                          employee_purchase,
+                                          basis_per_share)
 
     share_events.extend(vesting_events)
     case_result = CaseResult(share_events, lots, tax_events)
     return case_result
 
 
-def _calculate_lots_and_events(marginal_income_tax_rate,
-                               vesting_schedule,
-                               share_price_process,
-                               employee_purchase,
-                               basis_per_share):
+def _no_83b_calculate_lots_and_events(marginal_income_tax_rate,
+                                      vesting_schedule,
+                                      share_price_process,
+                                      employee_purchase,
+                                      basis_per_share):
 
     vesting_events = []
     lots = []
