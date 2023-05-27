@@ -7,8 +7,8 @@ from src.events.tax_event import TaxEvent, TaxType
 from src.state.portfolio import Portfolio
 from src.state.lot import Lot
 from src.events.employment_event import EmploymentType
-from src.execute.yes_83b import execute_yes_83b
-from src.execute.no_83b import execute_no_83b
+from src.execute.cases.yes_83b import execute_yes_83b
+from src.execute.cases.no_83b import execute_no_83b
 from src.execute.shared import CaseResult, run_case
 
 
