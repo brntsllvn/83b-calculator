@@ -1,14 +1,17 @@
-from src.execute.shared import CaseResult
+from src.execute.shared import CaseResult, get_repurchase_events
 from src.events.share_event import ShareEvent, ShareEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.lot import Lot
-from src.execute.shared import get_liquidation_events
+from src.execute.shared import get_sale_events
+from src.events.employment_event import EmploymentType
 
 
 def execute_yes_83b(marginal_income_tax_rate,
+                    marginal_long_term_capital_gains_rate,
                     employee_purchase,
                     vesting_schedule,
-                    share_price_process):
+                    share_price_process,
+                    employment_process):
     share_events = []
     tax_events = []
     lots = []
@@ -38,11 +41,13 @@ def execute_yes_83b(marginal_income_tax_rate,
     lots, vesting_events, tax_events = \
         _yes_83b_calculate_lots_and_events(
             marginal_income_tax_rate,
+            marginal_long_term_capital_gains_rate,
             employee_purchase,
             vesting_schedule,
             share_price_process,
             basis_per_share,
-            share_grant_count
+            share_grant_count,
+            employment_process
         )
 
     share_events.extend(vesting_events)
@@ -51,12 +56,14 @@ def execute_yes_83b(marginal_income_tax_rate,
 
 
 def _yes_83b_calculate_lots_and_events(marginal_income_tax_rate,
+                                       marginal_long_term_capital_gains_rate,
                                        employee_purchase,
                                        vesting_schedule,
                                        share_price_process,
                                        basis_per_share,
-                                       share_grant_count):
-    vesting_events = []
+                                       share_grant_count,
+                                       employment_process):
+    share_events = []
     lots = []
     tax_events = []
     grant_tax_event = _get_grant_tax_event(
@@ -69,17 +76,29 @@ def _yes_83b_calculate_lots_and_events(marginal_income_tax_rate,
         tax_events.append(grant_tax_event)
 
     for idx, count_vesting_shares in enumerate(vesting_schedule):
-        if count_vesting_shares > 0:
+        employment_status = employment_process[idx]
+        if employment_status is EmploymentType.EMPLOYED and count_vesting_shares > 0:
             vesting_event = ShareEvent(
                 idx,
                 ShareEventType.VEST,
                 count_vesting_shares,
                 share_price_process[idx],
                 False)
-            vesting_events.append(vesting_event)
+            share_events.append(vesting_event)
             lot = Lot(idx, count_vesting_shares, basis_per_share)
             lots.append(lot)
-    return lots, vesting_events, tax_events
+        elif employment_status is EmploymentType.TERMINATED:
+            repurchase_share_event, repurchase_tax_event = get_repurchase_events(
+                marginal_long_term_capital_gains_rate,
+                idx,
+                share_grant_count,
+                share_price_process[idx],
+                lots,
+                employee_purchase)
+            share_events.append(repurchase_share_event)
+            if repurchase_tax_event != None:
+                tax_events.append(repurchase_tax_event)
+    return lots, share_events, tax_events
 
 
 def _get_grant_tax_event(marginal_income_tax_rate,

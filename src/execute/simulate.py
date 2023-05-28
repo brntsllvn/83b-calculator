@@ -56,6 +56,7 @@ def run_scenario(scenario, metadata):
         scenario.employee_purchase,
         scenario.vesting_schedule,
         scenario.share_price_process,
+        scenario.employment_process,
         execute_yes_83b
     )
     no_83b_case_result = run_case(
@@ -64,6 +65,7 @@ def run_scenario(scenario, metadata):
         scenario.employee_purchase,
         scenario.vesting_schedule,
         scenario.share_price_process,
+        scenario.employment_process,
         execute_no_83b
     )
     tax_diff_process = get_tax_diff_process(
