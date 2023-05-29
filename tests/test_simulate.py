@@ -2,7 +2,7 @@ import json
 
 from src.execute.simulate import (
     run_scenario, EmployeePurchase, ScenarioMetadata, Scenario)
-from src.events.share_event import ShareEventType, ShareEvent
+from src.events.share_event import PortfolioEventType, PortfolioEvent
 from src.events.tax_event import TaxEvent, TaxType
 from src.events.employment_event import EmploymentType
 from src.state.lot import Lot
@@ -51,17 +51,17 @@ def test_simulate_irb_2012_28_examples_1_2():
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 4
-    assert yes_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, True
+    assert yes_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, True
     )
-    assert yes_83b_share_events[1] == ShareEvent(
-        0, ShareEventType.PURCHASE, 25_000, 1, False
+    assert yes_83b_share_events[1] == PortfolioEvent(
+        0, PortfolioEventType.PURCHASE, 25_000, 1, False
     )
-    assert yes_83b_share_events[2] == ShareEvent(
-        2, ShareEventType.VEST, 25_000, 1.6, False
+    assert yes_83b_share_events[2] == PortfolioEvent(
+        2, PortfolioEventType.VEST, 25_000, 1.6, False
     )
-    assert yes_83b_share_events[3] == ShareEvent(
-        3, ShareEventType.SALE, 25_000, 2.4, True
+    assert yes_83b_share_events[3] == PortfolioEvent(
+        3, PortfolioEventType.SALE, 25_000, 2.4, True
     )
 
     yes_83b_lots = yes_83b_result.lots
@@ -76,17 +76,17 @@ def test_simulate_irb_2012_28_examples_1_2():
     no_83b_result = results.no_83b_result
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 4
-    assert no_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, False
+    assert no_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, False
     )
-    assert no_83b_share_events[1] == ShareEvent(
-        0, ShareEventType.PURCHASE, 25_000, 1, False
+    assert no_83b_share_events[1] == PortfolioEvent(
+        0, PortfolioEventType.PURCHASE, 25_000, 1, False
     )
-    assert no_83b_share_events[2] == ShareEvent(
-        2, ShareEventType.VEST, 25_000, 1.6, True
+    assert no_83b_share_events[2] == PortfolioEvent(
+        2, PortfolioEventType.VEST, 25_000, 1.6, True
     )
-    assert no_83b_share_events[3] == ShareEvent(
-        3, ShareEventType.SALE, 25_000, 2.4, True
+    assert no_83b_share_events[3] == PortfolioEvent(
+        3, PortfolioEventType.SALE, 25_000, 2.4, True
     )
 
     no_83b_lots = no_83b_result.lots
@@ -139,14 +139,14 @@ def test_simulate_irb_2012_28_example_3():
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 3
-    assert yes_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, True
+    assert yes_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, True
     )
-    assert yes_83b_share_events[1] == ShareEvent(
-        0, ShareEventType.PURCHASE, 25_000, 1, False
+    assert yes_83b_share_events[1] == PortfolioEvent(
+        0, PortfolioEventType.PURCHASE, 25_000, 1, False
     )
-    assert yes_83b_share_events[2] == ShareEvent(
-        1, ShareEventType.REPURCHASE, 25_000, 1, True
+    assert yes_83b_share_events[2] == PortfolioEvent(
+        1, PortfolioEventType.REPURCHASE, 25_000, 1, True
     )
 
     yes_83b_lots = yes_83b_result.lots
@@ -158,14 +158,14 @@ def test_simulate_irb_2012_28_example_3():
     no_83b_result = results.no_83b_result
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 3
-    assert no_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, False
+    assert no_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, False
     )
-    assert no_83b_share_events[1] == ShareEvent(
-        0, ShareEventType.PURCHASE, 25_000, 1, False
+    assert no_83b_share_events[1] == PortfolioEvent(
+        0, PortfolioEventType.PURCHASE, 25_000, 1, False
     )
-    assert yes_83b_share_events[2] == ShareEvent(
-        1, ShareEventType.REPURCHASE, 25_000, 1, True
+    assert yes_83b_share_events[2] == PortfolioEvent(
+        1, PortfolioEventType.REPURCHASE, 25_000, 1, True
     )
 
     no_83b_lots = no_83b_result.lots
@@ -212,12 +212,12 @@ def test_simulate_irb_2012_28_examples_4_5():
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 3
-    assert yes_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, True)
-    assert yes_83b_share_events[1] == ShareEvent(
-        2, ShareEventType.VEST, 25_000, 1.6, False)
-    assert yes_83b_share_events[2] == ShareEvent(
-        3, ShareEventType.SALE, 25_000, 2.4, True)
+    assert yes_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, True)
+    assert yes_83b_share_events[1] == PortfolioEvent(
+        2, PortfolioEventType.VEST, 25_000, 1.6, False)
+    assert yes_83b_share_events[2] == PortfolioEvent(
+        3, PortfolioEventType.SALE, 25_000, 2.4, True)
 
     yes_83b_lots = yes_83b_result.lots
     assert len(yes_83b_lots) == 1
@@ -235,12 +235,12 @@ def test_simulate_irb_2012_28_examples_4_5():
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 3
 
-    assert no_83b_share_events[0] == ShareEvent(
-        0, ShareEventType.GRANT, 25_000, 1, False)
-    assert no_83b_share_events[1] == ShareEvent(
-        2, ShareEventType.VEST, 25_000, 1.6, True)
-    assert no_83b_share_events[2] == ShareEvent(
-        3, ShareEventType.SALE, 25_000, 2.4, True)
+    assert no_83b_share_events[0] == PortfolioEvent(
+        0, PortfolioEventType.GRANT, 25_000, 1, False)
+    assert no_83b_share_events[1] == PortfolioEvent(
+        2, PortfolioEventType.VEST, 25_000, 1.6, True)
+    assert no_83b_share_events[2] == PortfolioEvent(
+        3, PortfolioEventType.SALE, 25_000, 2.4, True)
 
     no_83b_lots = no_83b_result.lots
     assert len(no_83b_lots) == 1

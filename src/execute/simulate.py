@@ -2,9 +2,8 @@ from dataclasses import dataclass
 
 import numpy_financial as npf
 
-from src.events.share_event import ShareEvent, ShareEventType
+from src.events.share_event import PortfolioEvent, PortfolioEventType
 from src.events.tax_event import TaxEvent, TaxType
-from src.state.portfolio import Portfolio
 from src.state.lot import Lot
 from src.events.employment_event import EmploymentType
 from src.execute.cases.yes_83b import execute_yes_83b

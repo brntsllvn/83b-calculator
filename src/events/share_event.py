@@ -5,7 +5,7 @@ from enum import IntEnum
 
 
 @dataclass
-class ShareEventType(IntEnum):
+class PortfolioEventType(IntEnum):
     GRANT = 1
     PURCHASE = 2
     VEST = 3
@@ -14,9 +14,9 @@ class ShareEventType(IntEnum):
 
 
 @dataclass
-class ShareEvent:
+class PortfolioEvent:
     time_idx: int
-    share_event_type: ShareEventType
+    share_event_type: PortfolioEventType
     share_count: int
     share_price: float
     taxable: bool

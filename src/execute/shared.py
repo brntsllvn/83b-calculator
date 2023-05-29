@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.events.share_event import ShareEvent, ShareEventType
+from src.events.share_event import PortfolioEvent, PortfolioEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.lot import Lot
 from src.execute.case_result import CaseResult
@@ -50,9 +50,9 @@ def get_sale_events(marginal_long_term_capital_gains_rate,
     portfolio_value, portfolio_basis, portfolio_share_count = \
         get_portfolio(lots, liquidation_share_price)
 
-    sale_event = ShareEvent(
+    sale_event = PortfolioEvent(
         liquidate_time_idx,
-        ShareEventType.SALE,
+        PortfolioEventType.SALE,
         portfolio_share_count,
         liquidation_share_price,
         True
@@ -87,9 +87,9 @@ def get_repurchase_events(
     repurchase_price_per_share = min(
         [current_price_per_share, employee_purchase.price_per_share])
 
-    repurchase_event = ShareEvent(
+    repurchase_event = PortfolioEvent(
         repurchase_time_idx,
-        ShareEventType.REPURCHASE,
+        PortfolioEventType.REPURCHASE,
         share_grant_count,
         repurchase_price_per_share,
         True)

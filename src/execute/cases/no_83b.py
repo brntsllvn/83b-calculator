@@ -1,5 +1,5 @@
 from src.execute.shared import CaseResult, get_repurchase_events
-from src.events.share_event import ShareEvent, ShareEventType
+from src.events.share_event import PortfolioEvent, PortfolioEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.state.lot import Lot
 from src.execute.shared import get_sale_events
@@ -19,9 +19,9 @@ def execute_no_83b(marginal_income_tax_rate,
     share_grant_count = sum(vesting_schedule)
     basis_per_share = share_price_process[0]
 
-    grant_event = ShareEvent(
+    grant_event = PortfolioEvent(
         0,
-        ShareEventType.GRANT,
+        PortfolioEventType.GRANT,
         share_grant_count,
         basis_per_share,
         False
@@ -29,9 +29,9 @@ def execute_no_83b(marginal_income_tax_rate,
     share_events.append(grant_event)
 
     if employee_purchase.share_count > 0:
-        purchase_event = ShareEvent(
+        purchase_event = PortfolioEvent(
             0,
-            ShareEventType.PURCHASE,
+            PortfolioEventType.PURCHASE,
             employee_purchase.share_count,
             employee_purchase.price_per_share,
             False
@@ -68,9 +68,9 @@ def _no_83b_calculate_lots_and_events(marginal_income_tax_rate,
     for idx, count_vesting_shares in enumerate(vesting_schedule):
         employment_status = employment_process[idx]
         if employment_status is EmploymentType.EMPLOYED and count_vesting_shares > 0:
-            vesting_event = ShareEvent(
+            vesting_event = PortfolioEvent(
                 idx,
-                ShareEventType.VEST,
+                PortfolioEventType.VEST,
                 count_vesting_shares,
                 share_price_process[idx],
                 True)
