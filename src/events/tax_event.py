@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum
 
 
-class TaxType(IntEnum):
+class TaxType(Enum):
+    def __str__(self):
+        return str(self.value)
     INCOME = 1
     CAPITAL_GAINS_LONG_TERM = 2
     CAPITAL_GAINS_SHORT_TERM = 3

@@ -2,6 +2,7 @@ from pprint import pp
 
 from src.execute.simulate import (
     run_scenario, EmployeePurchase, Scenario, ScenarioMetadata)
+from src.events.employment_event import EmploymentType
 
 
 def main():
@@ -14,11 +15,10 @@ def main():
     scenario = Scenario(
         vesting_schedule=[0, 25_000, 25_000, 25_000, 25_000, 0],
         share_price_process=[0.01, 0.05, 0.25, 1.25, 2.45, 5.00],
-        employment_process=[1, 1, 1, 1, 1, 1]
+        employment_process=[EmploymentType.EMPLOYED] * 6
     )
 
     results = run_scenario(scenario, metadata)
-    print(results)
 
 
 main()

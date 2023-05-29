@@ -2,13 +2,10 @@ from dataclasses import dataclass
 
 import numpy_financial as npf
 
-from src.events.share_event import PortfolioEvent, PortfolioEventType
+from src.events.portfolio_event import PortfolioEvent, PortfolioEventType
 from src.events.tax_event import TaxEvent, TaxType
-from src.state.lot import Lot
 from src.events.employment_event import EmploymentType
-from src.execute.cases.yes_83b import execute_yes_83b
-from src.execute.cases.no_83b import execute_no_83b
-from src.execute.shared import CaseResult, run_case
+from src.execute.shared import CaseResult, get_events
 
 
 @dataclass
@@ -41,44 +38,44 @@ class Election83bValue:
 
 @dataclass
 class ScenarioResult:
-    no_83b_result: CaseResult
-    yes_83b_result: CaseResult
+    forgo_83b_result: CaseResult
+    file_83b_result: CaseResult
     election_83b_value: Election83bValue
-
-# TODO: implement employment process
 
 
 def run_scenario(scenario, metadata):
-    yes_83b_case_result = run_case(
-        metadata.marginal_income_tax_rate,
-        metadata.marginal_long_term_capital_gains_rate,
-        scenario.employee_purchase,
-        scenario.vesting_schedule,
+    file_83b_result = get_events(
+        True,
         scenario.share_price_process,
-        scenario.employment_process,
-        execute_yes_83b
-    )
-    no_83b_case_result = run_case(
-        metadata.marginal_income_tax_rate,
-        metadata.marginal_long_term_capital_gains_rate,
-        scenario.employee_purchase,
         scenario.vesting_schedule,
-        scenario.share_price_process,
         scenario.employment_process,
-        execute_no_83b
+        scenario.employee_purchase,
     )
-    tax_diff_process = get_tax_diff_process(
-        len(scenario.share_price_process),
-        yes_83b_case_result.tax_events,
-        no_83b_case_result.tax_events)
-    raw = sum(tax_diff_process)
-    npv = get_npv(tax_diff_process, metadata.discount_rate)
-    election_83b_value = Election83bValue(tax_diff_process, raw, npv)
-    scenario_result = ScenarioResult(
-        no_83b_case_result,
-        yes_83b_case_result,
-        election_83b_value)
-    return scenario_result
+    print(*file_83b_result, sep="\n", end="\n")
+    # TODO: get tax events from portfolio events
+
+    forgo_83b_result = get_events(
+        False,
+        scenario.share_price_process,
+        scenario.vesting_schedule,
+        scenario.employment_process,
+        scenario.employee_purchase,
+    )
+    print(*forgo_83b_result, sep="\n", end="\n")
+    # TODO: get tax events from portfolio events
+
+    # tax_diff_process = get_tax_diff_process(
+    #     len(scenario.share_price_process),
+    #     yes_83b_case_result.tax_events,
+    #     no_83b_case_result.tax_events)
+    # raw = sum(tax_diff_process)
+    # npv = get_npv(tax_diff_process, metadata.discount_rate)
+    # election_83b_value = Election83bValue(tax_diff_process, raw, npv)
+    # scenario_result = ScenarioResult(
+    #     no_83b_case_result,
+    #     yes_83b_case_result,
+    #     election_83b_value)
+    return file_83b_result
 
 
 def get_npv(tax_diff_process, discount_rate):

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum
 
 
-@dataclass
-class EmploymentType(IntEnum):
+class EmploymentType(Enum):
+    def __str__(self):
+        return str(self.value)
     EMPLOYED = 1
     TERMINATED = 2
     UNEMPLOYED = 3

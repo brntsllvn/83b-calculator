@@ -2,10 +2,9 @@ import json
 
 from src.execute.simulate import (
     run_scenario, EmployeePurchase, ScenarioMetadata, Scenario)
-from src.events.share_event import PortfolioEventType, PortfolioEvent
+from src.events.portfolio_event import PortfolioEventType, PortfolioEvent
 from src.events.tax_event import TaxEvent, TaxType
 from src.events.employment_event import EmploymentType
-from src.state.lot import Lot
 
 """
     https://www.irs.gov/irb/2012-28_IRB#RR-2012-19
@@ -37,61 +36,49 @@ def test_simulate_irb_2012_28_examples_1_2():
     scenario = Scenario(
         vesting_schedule=[0, 0, 25_000, 0],
         share_price_process=[1, 1, 1.6, 2.4],
-        employment_process=[
-            EmploymentType.EMPLOYED,
-            EmploymentType.EMPLOYED,
-            EmploymentType.EMPLOYED,
-            EmploymentType.EMPLOYED],
+        employment_process=[EmploymentType.EMPLOYED] * 4,
         employee_purchase=EmployeePurchase(1, 25_000)
     )
 
     results = run_scenario(scenario, metadata)
 
-    yes_83b_result = results.yes_83b_result
+    yes_83b_result = results.file_83b_result
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 4
     assert yes_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, True
+        0, PortfolioEventType.GRANT, 25_000
     )
     assert yes_83b_share_events[1] == PortfolioEvent(
-        0, PortfolioEventType.PURCHASE, 25_000, 1, False
+        0, PortfolioEventType.PURCHASE, 25_000
     )
     assert yes_83b_share_events[2] == PortfolioEvent(
-        2, PortfolioEventType.VEST, 25_000, 1.6, False
+        2, PortfolioEventType.VEST, 25_000
     )
     assert yes_83b_share_events[3] == PortfolioEvent(
-        3, PortfolioEventType.SALE, 25_000, 2.4, True
+        3, PortfolioEventType.SALE, 25_000
     )
-
-    yes_83b_lots = yes_83b_result.lots
-    assert len(yes_83b_lots) == 1
-    assert yes_83b_lots[0] == Lot(2, 25_000, 1)
 
     yes_83b_tax_events = yes_83b_result.tax_events
     assert len(yes_83b_tax_events) == 1
     assert yes_83b_tax_events[0] == TaxEvent(
         3, 35_000, TaxType.CAPITAL_GAINS_LONG_TERM, 7_000)
 
-    no_83b_result = results.no_83b_result
+    no_83b_result = results.forgo_83b_result
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 4
     assert no_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, False
+        0, PortfolioEventType.GRANT, 25_000
     )
     assert no_83b_share_events[1] == PortfolioEvent(
-        0, PortfolioEventType.PURCHASE, 25_000, 1, False
+        0, PortfolioEventType.PURCHASE, 25_000
     )
     assert no_83b_share_events[2] == PortfolioEvent(
-        2, PortfolioEventType.VEST, 25_000, 1.6, True
+        2, PortfolioEventType.VEST, 25_000
     )
     assert no_83b_share_events[3] == PortfolioEvent(
-        3, PortfolioEventType.SALE, 25_000, 2.4, True
+        3, PortfolioEventType.SALE, 25_000
     )
-
-    no_83b_lots = no_83b_result.lots
-    assert len(no_83b_lots) == 1
-    assert no_83b_lots[0] == Lot(2, 25_000, 1.6)
 
     no_83b_tax_events = no_83b_result.tax_events
     assert len(no_83b_tax_events) == 2
@@ -135,41 +122,35 @@ def test_simulate_irb_2012_28_example_3():
 
     results = run_scenario(scenario, metadata)
 
-    yes_83b_result = results.yes_83b_result
+    yes_83b_result = results.file_83b_result
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 3
     assert yes_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, True
+        0, PortfolioEventType.GRANT, 25_000
     )
     assert yes_83b_share_events[1] == PortfolioEvent(
-        0, PortfolioEventType.PURCHASE, 25_000, 1, False
+        0, PortfolioEventType.PURCHASE, 25_000
     )
     assert yes_83b_share_events[2] == PortfolioEvent(
-        1, PortfolioEventType.REPURCHASE, 25_000, 1, True
+        1, PortfolioEventType.REPURCHASE, 25_000
     )
-
-    yes_83b_lots = yes_83b_result.lots
-    assert len(yes_83b_lots) == 0
 
     yes_83b_tax_events = yes_83b_result.tax_events
     assert len(yes_83b_tax_events) == 0
 
-    no_83b_result = results.no_83b_result
+    no_83b_result = results.forgo_83b_result
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 3
     assert no_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, False
+        0, PortfolioEventType.GRANT, 25_000
     )
     assert no_83b_share_events[1] == PortfolioEvent(
-        0, PortfolioEventType.PURCHASE, 25_000, 1, False
+        0, PortfolioEventType.PURCHASE, 25_000
     )
     assert yes_83b_share_events[2] == PortfolioEvent(
-        1, PortfolioEventType.REPURCHASE, 25_000, 1, True
+        1, PortfolioEventType.REPURCHASE, 25_000
     )
-
-    no_83b_lots = no_83b_result.lots
-    assert len(no_83b_lots) == 0
 
     no_83b_tax_events = no_83b_result.tax_events
     assert len(no_83b_tax_events) == 0
@@ -208,20 +189,19 @@ def test_simulate_irb_2012_28_examples_4_5():
 
     results = run_scenario(scenario, metadata)
 
-    yes_83b_result = results.yes_83b_result
+    yes_83b_result = results.file_83b_result
 
     yes_83b_share_events = yes_83b_result.share_events
     assert len(yes_83b_share_events) == 3
     assert yes_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, True)
+        0, PortfolioEventType.GRANT, 25_000
+    )
     assert yes_83b_share_events[1] == PortfolioEvent(
-        2, PortfolioEventType.VEST, 25_000, 1.6, False)
+        2, PortfolioEventType.VEST, 25_000
+    )
     assert yes_83b_share_events[2] == PortfolioEvent(
-        3, PortfolioEventType.SALE, 25_000, 2.4, True)
-
-    yes_83b_lots = yes_83b_result.lots
-    assert len(yes_83b_lots) == 1
-    assert yes_83b_lots[0] == Lot(2, 25_000, 1)
+        3, PortfolioEventType.SALE, 25_000
+    )
 
     yes_83b_tax_events = yes_83b_result.tax_events
     assert len(yes_83b_tax_events) == 2
@@ -230,21 +210,20 @@ def test_simulate_irb_2012_28_examples_4_5():
     assert yes_83b_tax_events[1] == TaxEvent(
         3, 35_000, TaxType.CAPITAL_GAINS_LONG_TERM, 7_000)
 
-    no_83b_result = results.no_83b_result
+    no_83b_result = results.forgo_83b_result
 
     no_83b_share_events = no_83b_result.share_events
     assert len(no_83b_share_events) == 3
 
     assert no_83b_share_events[0] == PortfolioEvent(
-        0, PortfolioEventType.GRANT, 25_000, 1, False)
+        0, PortfolioEventType.GRANT, 25_000
+    )
     assert no_83b_share_events[1] == PortfolioEvent(
-        2, PortfolioEventType.VEST, 25_000, 1.6, True)
+        2, PortfolioEventType.VEST, 25_000
+    )
     assert no_83b_share_events[2] == PortfolioEvent(
-        3, PortfolioEventType.SALE, 25_000, 2.4, True)
-
-    no_83b_lots = no_83b_result.lots
-    assert len(no_83b_lots) == 1
-    assert no_83b_lots[0] == Lot(2, 25_000, 1.6)
+        3, PortfolioEventType.SALE, 25_000
+    )
 
     no_83b_tax_events = no_83b_result.tax_events
     assert len(no_83b_tax_events) == 2
@@ -295,9 +274,6 @@ def test_simulate_irb_2012_28_examples_4_5():
 #     yes_83b_vesting_events = yes_83b_events_and_lots.share_events
 #     assert len(yes_83b_vesting_events) == 0
 
-#     yes_83b_lots = yes_83b_events_and_lots.lots
-#     assert len(yes_83b_lots) == 0
-
 #     yes_83b_tax_events = yes_83b_events_and_lots.tax_events
 #     assert len(yes_83b_tax_events) == 1
 #     assert yes_83b_tax_events[0].time_idx == 0
@@ -309,9 +285,6 @@ def test_simulate_irb_2012_28_examples_4_5():
 
 #     no_83b_vesting_events = no_83b_events_and_lots.share_events
 #     assert len(no_83b_vesting_events) == 0
-
-#     no_83b_lots = no_83b_events_and_lots.lots
-#     assert len(no_83b_lots) == 0
 
 #     no_83b_tax_events = no_83b_events_and_lots.tax_events
 #     assert len(no_83b_tax_events) == 0
