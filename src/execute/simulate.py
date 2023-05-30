@@ -5,7 +5,7 @@ import numpy_financial as npf
 from src.events.portfolio_event import PortfolioEvent, PortfolioEventType
 from src.events.tax_event import TaxEvent, TaxType
 from src.events.employment_event import EmploymentType
-from src.execute.shared import CaseResult, get_events
+from src.execute.shared import CaseResult, get_events, get_tax_events
 
 
 @dataclass
@@ -44,24 +44,32 @@ class ScenarioResult:
 
 
 def run_scenario(scenario, metadata):
-    file_83b_result = get_events(
+    file_83b_events = get_events(
         True,
         scenario.share_price_process,
         scenario.vesting_schedule,
         scenario.employment_process,
         scenario.employee_purchase,
     )
-    print(*file_83b_result, sep="\n", end="\n")
+    print(*file_83b_events, sep="\n", end="\n")
     # TODO: get tax events from portfolio events
-
-    forgo_83b_result = get_events(
-        False,
+    file_83b_tax_events = get_tax_events(
+        file_83b_events,
         scenario.share_price_process,
-        scenario.vesting_schedule,
-        scenario.employment_process,
         scenario.employee_purchase,
+        metadata.marginal_income_tax_rate,
+        metadata.marginal_long_term_capital_gains_rate
     )
-    print(*forgo_83b_result, sep="\n", end="\n")
+    print(*file_83b_tax_events, sep="\n", end="\n")
+
+    # forgo_83b_result = get_events(
+    #     False,
+    #     scenario.share_price_process,
+    #     scenario.vesting_schedule,
+    #     scenario.employment_process,
+    #     scenario.employee_purchase
+    # )
+    # print(*forgo_83b_result, sep="\n", end="\n")
     # TODO: get tax events from portfolio events
 
     # tax_diff_process = get_tax_diff_process(
@@ -75,7 +83,7 @@ def run_scenario(scenario, metadata):
     #     no_83b_case_result,
     #     yes_83b_case_result,
     #     election_83b_value)
-    return file_83b_result
+    return file_83b_events
 
 
 def get_npv(tax_diff_process, discount_rate):

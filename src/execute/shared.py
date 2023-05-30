@@ -49,3 +49,104 @@ def get_events(file_83b_election,
             portfolio_events.append(sale_event)
 
     return portfolio_events
+
+
+def get_tax_events(portfolio_events,
+                   share_price_process,
+                   employee_purchase,
+                   merginal_income_tax_rate,
+                   marginal_long_term_capital_gains_rate):
+    filed_83b = get_filed_83b(portfolio_events)
+    tax_events = []
+    for portfolio_event in portfolio_events:
+        pet = portfolio_event.portfolio_event_type
+        tax_event = None
+        if pet is PortfolioEventType.GRANT:
+            print("NO TAXABLE EVENT")
+        elif pet is PortfolioEventType.PURCHASE:
+            print("NO TAXABLE EVENT")
+        elif pet is PortfolioEventType.FILE_83B:
+            tax_event = get_83b_taxable_event(
+                portfolio_event,
+                share_price_process[0],
+                employee_purchase,
+                merginal_income_tax_rate
+            )
+        elif pet is PortfolioEventType.VEST:
+            tax_event = get_vest_taxable_event(
+                filed_83b,
+                portfolio_event,
+                merginal_income_tax_rate
+            )
+        elif pet is PortfolioEventType.REPURCHASE:
+            print("NOT IMPLEMENTED")
+        elif pet is PortfolioEventType.SALE:
+            tax_event = get_sale_taxable_event(
+                filed_83b,
+                portfolio_event,
+                employee_purchase,
+                share_price_process[0],
+                share_price_process[-1],
+                marginal_long_term_capital_gains_rate
+            )
+        else:
+            raise "unknown portfolio event type"
+        if tax_event is not None:
+            tax_events.append(tax_event)
+    return tax_events
+
+
+def get_filed_83b(portfolio_events):
+    for portfolio_event in portfolio_events:
+        if portfolio_event.portfolio_event_type is PortfolioEventType.FILE_83B:
+            return True
+    return False
+
+
+def get_83b_taxable_event(
+        portfolio_event,
+        price_per_share_at_grant,
+        employee_purchase,
+        merginal_income_tax_rate):
+    employee_purchase_dollars = 1.0 * \
+        employee_purchase.price_per_share * employee_purchase.share_count
+    taxable_dollars = 1.0 * price_per_share_at_grant * \
+        portfolio_event.share_count - employee_purchase_dollars
+    tax_dollars = 1.0 * taxable_dollars * merginal_income_tax_rate
+    if tax_dollars > 0:
+        return TaxEvent(portfolio_event.time_idx, taxable_dollars, TaxType.INCOME, tax_dollars)
+    return None
+
+
+def get_vest_taxable_event(
+        filed_83b,
+        portfolio_event,
+        merginal_income_tax_rate):
+    if filed_83b:
+        return None
+    else:
+        time_idx = portfolio_event.time_idx
+        print("NOT IMPLEMENTED")
+        return -1
+
+
+def get_sale_taxable_event(
+        filed_83b,
+        portfolio_event,
+        employee_purchase,
+        share_price_at_grant,
+        last_share_price,
+        marginal_long_term_capital_gains_rate):
+    if filed_83b:
+        employee_purchase_dollars = \
+            1.0 * employee_purchase.price_per_share * employee_purchase.share_count
+        basis = 1.0 * portfolio_event.share_count * \
+            share_price_at_grant + employee_purchase_dollars
+        fair_market_value = 1.0 * portfolio_event.share_count * last_share_price
+        taxable_dollars = fair_market_value - basis
+        tax_dollars = 1.0 * taxable_dollars * marginal_long_term_capital_gains_rate
+        return TaxEvent(
+            portfolio_event.time_idx,
+            taxable_dollars,
+            TaxType.CAPITAL_GAINS_LONG_TERM,
+            tax_dollars)
