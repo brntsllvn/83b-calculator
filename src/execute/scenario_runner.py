@@ -7,43 +7,29 @@ from src.events.tax_event import TaxEvent, TaxType, get_tax_events, get_tax_diff
 from src.events.employment_event import EmploymentType
 
 
-def run_scenario(scenario, metadata):
-    file_83b_events = get_portfolio_events(
-        True,
-        scenario.share_price_process,
-        scenario.vesting_schedule,
-        scenario.employment_process,
-        scenario.employee_purchase,
-    )
+def run_scenario(portfolio_event_data, tax_event_data, metadata):
+    file_83b_events = get_portfolio_events(True, portfolio_event_data)
     print(*file_83b_events, sep="\n", end="\n")
+
     file_83b_tax_events = get_tax_events(
         file_83b_events,
-        scenario.share_price_process,
-        scenario.employee_purchase,
-        metadata.marginal_income_tax_rate,
-        metadata.marginal_long_term_capital_gains_rate
+        portfolio_event_data.employee_purchase,
+        tax_event_data
     )
     print(*file_83b_tax_events, sep="\n", end="\n")
 
-    forgo_83b_result = get_portfolio_events(
-        False,
-        scenario.share_price_process,
-        scenario.vesting_schedule,
-        scenario.employment_process,
-        scenario.employee_purchase
-    )
+    forgo_83b_result = get_portfolio_events(False, portfolio_event_data)
     print(*forgo_83b_result, sep="\n", end="\n")
+
     forgo_83b_tax_events = get_tax_events(
         forgo_83b_result,
-        scenario.share_price_process,
-        scenario.employee_purchase,
-        metadata.marginal_income_tax_rate,
-        metadata.marginal_long_term_capital_gains_rate
+        portfolio_event_data.employee_purchase,
+        tax_event_data
     )
     print(*forgo_83b_tax_events, sep="\n", end="\n")
 
     tax_diff_process = get_tax_diff_process(
-        len(scenario.share_price_process),
+        len(tax_event_data.share_price_process),
         file_83b_tax_events,
         forgo_83b_tax_events)
     raw = sum(tax_diff_process)

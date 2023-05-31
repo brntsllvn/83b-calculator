@@ -4,15 +4,19 @@ from src.events.employment_event import EmploymentType, EmployeePurchase
 
 
 @dataclass
-class Scenario:
+class PortfolioEventData:
     vesting_schedule: [int]
-    share_price_process: [float]
     employment_process: [EmploymentType]
     employee_purchase: EmployeePurchase = EmployeePurchase(0, 0)
 
 
 @dataclass
-class ScenarioMetadata:
+class TaxEventData:
     marginal_income_tax_rate: float
     marginal_long_term_capital_gains_rate: float
+    share_price_process: [float]
+
+
+@dataclass
+class Metadata:
     discount_rate: float

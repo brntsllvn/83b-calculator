@@ -23,10 +23,8 @@ class TaxEvent:
 
 
 def get_tax_events(portfolio_events,
-                   share_price_process,
                    employee_purchase,
-                   merginal_income_tax_rate,
-                   marginal_long_term_capital_gains_rate):
+                   tax_event_data):
     filed_83b = get_filed_83b(portfolio_events)
     tax_events = []
     for portfolio_event in portfolio_events:
@@ -39,16 +37,16 @@ def get_tax_events(portfolio_events,
         elif pet is PortfolioEventType.FILE_83B:
             tax_event = get_83b_taxable_event(
                 portfolio_event,
-                share_price_process[0],
+                tax_event_data.share_price_process[0],
                 employee_purchase,
-                merginal_income_tax_rate
+                tax_event_data.marginal_income_tax_rate
             )
         elif pet is PortfolioEventType.VEST:
             tax_event = get_vest_taxable_event(
                 filed_83b,
                 portfolio_event,
-                share_price_process,
-                merginal_income_tax_rate
+                tax_event_data.share_price_process,
+                tax_event_data.marginal_income_tax_rate
             )
         elif pet is PortfolioEventType.REPURCHASE:
             print("NOT IMPLEMENTED")
@@ -57,9 +55,9 @@ def get_tax_events(portfolio_events,
                 filed_83b,
                 portfolio_event,
                 portfolio_events,
-                share_price_process,
+                tax_event_data.share_price_process,
                 employee_purchase,
-                marginal_long_term_capital_gains_rate
+                tax_event_data.marginal_long_term_capital_gains_rate
             )
         else:
             raise "unknown portfolio event type"

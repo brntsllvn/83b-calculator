@@ -22,19 +22,15 @@ class PortfolioEvent:
     share_count: int
 
 
-def get_portfolio_events(file_83b_election,
-                         share_price_process,
-                         vesting_schedule,
-                         employment_process,
-                         employee_purchase):
+def get_portfolio_events(file_83b_election, scenario):
     portfolio_events = []
-    share_grant = sum(vesting_schedule)
+    share_grant = sum(scenario.vesting_schedule)
     grant_event = PortfolioEvent(0, PortfolioEventType.GRANT, share_grant)
     portfolio_events.append(grant_event)
 
-    if employee_purchase.share_count > 0:
+    if scenario.employee_purchase.share_count > 0:
         purchase_event = PortfolioEvent(
-            0, PortfolioEventType.PURCHASE, employee_purchase.share_count)
+            0, PortfolioEventType.PURCHASE, scenario.employee_purchase.share_count)
         portfolio_events.append(purchase_event)
 
     if file_83b_election:
@@ -43,10 +39,10 @@ def get_portfolio_events(file_83b_election,
             0, PortfolioEventType.FILE_83B, share_grant)
         portfolio_events.append(election_event)
 
-    for idx in range(1, len(vesting_schedule)):
-        employment_status = employment_process[idx]
+    for idx in range(1, len(scenario.vesting_schedule)):
+        employment_status = scenario.employment_process[idx]
         if employment_status is EmploymentType.EMPLOYED:
-            vesting_share_count = vesting_schedule[idx]
+            vesting_share_count = scenario.vesting_schedule[idx]
             if vesting_share_count > 0:
                 vesting_event = PortfolioEvent(
                     idx, PortfolioEventType.VEST, vesting_share_count)
@@ -58,7 +54,7 @@ def get_portfolio_events(file_83b_election,
             portfolio_events.append(repurchase_event)
             break
 
-        if idx == len(vesting_schedule) - 1:
+        if idx == len(scenario.vesting_schedule) - 1:
             # TODO add cases for short-term holding period and long-term
             sale_event = PortfolioEvent(
                 idx, PortfolioEventType.SALE, share_grant)

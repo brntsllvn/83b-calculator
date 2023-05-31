@@ -1,24 +1,25 @@
 from pprint import pp
 
-from src.execute.scenario import Scenario, ScenarioMetadata
+from src.execute.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.events.employment_event import EmploymentType, EmployeePurchase
 from src.execute.scenario_runner import run_scenario
 
 
 def main():
-    metadata = ScenarioMetadata(
+    portfolio_event_data = PortfolioEventData(
+        vesting_schedule=[0, 25_000, 25_000, 25_000, 25_000, 0],
+        employment_process=[EmploymentType.EMPLOYED] * 6
+    )
+    tax_event_data = TaxEventData(
         marginal_income_tax_rate=0.37,
         marginal_long_term_capital_gains_rate=0.20,
+        share_price_process=[0.01, 0.05, 0.25, 1.25, 2.45, 5.00],
+    )
+    metadata = Metadata(
         discount_rate=0.06
     )
 
-    scenario = Scenario(
-        vesting_schedule=[0, 25_000, 25_000, 25_000, 25_000, 0],
-        share_price_process=[0.01, 0.05, 0.25, 1.25, 2.45, 5.00],
-        employment_process=[EmploymentType.EMPLOYED] * 6
-    )
-
-    results = run_scenario(scenario, metadata)
+    results = run_scenario(portfolio_event_data, tax_event_data, metadata)
 
 
 main()
