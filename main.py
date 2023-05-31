@@ -1,6 +1,6 @@
 from pprint import pp
 
-from src.execute.simulate import (
+from src.execute.simulate import (  
     run_scenario, EmployeePurchase, Scenario, ScenarioMetadata)
 from src.events.employment_event import EmploymentType
 

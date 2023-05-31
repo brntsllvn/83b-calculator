@@ -62,9 +62,9 @@ def get_tax_events(portfolio_events,
         pet = portfolio_event.portfolio_event_type
         tax_event = None
         if pet is PortfolioEventType.GRANT:
-            print("NO TAXABLE EVENT")
+            continue
         elif pet is PortfolioEventType.PURCHASE:
-            print("NO TAXABLE EVENT")
+            continue
         elif pet is PortfolioEventType.FILE_83B:
             tax_event = get_83b_taxable_event(
                 portfolio_event,
@@ -76,6 +76,7 @@ def get_tax_events(portfolio_events,
             tax_event = get_vest_taxable_event(
                 filed_83b,
                 portfolio_event,
+                share_price_process,
                 merginal_income_tax_rate
             )
         elif pet is PortfolioEventType.REPURCHASE:
@@ -84,9 +85,9 @@ def get_tax_events(portfolio_events,
             tax_event = get_sale_taxable_event(
                 filed_83b,
                 portfolio_event,
+                portfolio_events,
+                share_price_process,
                 employee_purchase,
-                share_price_process[0],
-                share_price_process[-1],
                 marginal_long_term_capital_gains_rate
             )
         else:
@@ -121,32 +122,53 @@ def get_83b_taxable_event(
 def get_vest_taxable_event(
         filed_83b,
         portfolio_event,
+        share_price_process,
         merginal_income_tax_rate):
     if filed_83b:
         return None
-    else:
-        time_idx = portfolio_event.time_idx
-        print("NOT IMPLEMENTED")
-        return -1
+
+    time_idx = portfolio_event.time_idx
+    share_price = share_price_process[time_idx]
+    taxable_dollars = 1.0 * share_price * portfolio_event.share_count
+    tax_dollars = 1.0 * taxable_dollars * merginal_income_tax_rate
+    return TaxEvent(time_idx, taxable_dollars, TaxType.INCOME, tax_dollars)
 
 
 def get_sale_taxable_event(
         filed_83b,
-        portfolio_event,
+        sale_portfolio_event,
+        all_portfolio_events,
+        share_price_process,
         employee_purchase,
-        share_price_at_grant,
-        last_share_price,
         marginal_long_term_capital_gains_rate):
+    employee_purchase_dollars = \
+        1.0 * employee_purchase.price_per_share * employee_purchase.share_count
+    fair_market_value = 1.0 * \
+        sale_portfolio_event.share_count * share_price_process[-1]
     if filed_83b:
-        employee_purchase_dollars = \
-            1.0 * employee_purchase.price_per_share * employee_purchase.share_count
-        basis = 1.0 * portfolio_event.share_count * \
-            share_price_at_grant + employee_purchase_dollars
-        fair_market_value = 1.0 * portfolio_event.share_count * last_share_price
-        taxable_dollars = fair_market_value - basis
-        tax_dollars = 1.0 * taxable_dollars * marginal_long_term_capital_gains_rate
-        return TaxEvent(
-            portfolio_event.time_idx,
-            taxable_dollars,
-            TaxType.CAPITAL_GAINS_LONG_TERM,
-            tax_dollars)
+        basis = 1.0 * sale_portfolio_event.share_count * \
+            share_price_process[0] + employee_purchase_dollars
+    else:
+        basis = get_no_83b_basis(all_portfolio_events,
+                                 share_price_process,
+                                 employee_purchase_dollars)
+
+    taxable_dollars = fair_market_value - basis
+    tax_dollars = 1.0 * taxable_dollars * marginal_long_term_capital_gains_rate
+    return TaxEvent(
+        sale_portfolio_event.time_idx,
+        taxable_dollars,
+        TaxType.CAPITAL_GAINS_LONG_TERM,
+        tax_dollars)
+
+
+def get_no_83b_basis(all_portfolio_events,
+                     share_price_process,
+                     employee_purchase_dollars):
+    basis = 0
+    for portfolio_event in all_portfolio_events:
+        if portfolio_event.portfolio_event_type is PortfolioEventType.VEST:
+            basis += 1.0 * portfolio_event.share_count * \
+                share_price_process[portfolio_event.time_idx] + \
+                employee_purchase_dollars
+    return basis
