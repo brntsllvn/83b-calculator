@@ -1,8 +1,8 @@
 from pprint import pp
 
-from src.execute.simulate import (  
-    run_scenario, EmployeePurchase, Scenario, ScenarioMetadata)
-from src.events.employment_event import EmploymentType
+from src.execute.scenario import Scenario, ScenarioMetadata
+from src.events.employment_event import EmploymentType, EmployeePurchase
+from src.execute.scenario_runner import run_scenario
 
 
 def main():

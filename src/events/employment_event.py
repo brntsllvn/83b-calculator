@@ -8,3 +8,9 @@ class EmploymentType(Enum):
     EMPLOYED = 1
     TERMINATED = 2
     UNEMPLOYED = 3
+
+
+@dataclass
+class EmployeePurchase:
+    price_per_share: float
+    share_count: int
