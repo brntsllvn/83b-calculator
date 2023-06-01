@@ -28,7 +28,7 @@ def get_portfolio_events(file_83b_election, scenario):
     grant_event = PortfolioEvent(0, PortfolioEventType.GRANT, share_grant)
     portfolio_events.append(grant_event)
 
-    if scenario.employee_purchase.share_count > 0:
+    if scenario.employee_purchase and scenario.employee_purchase.share_count > 0:
         purchase_event = PortfolioEvent(
             0, PortfolioEventType.PURCHASE, scenario.employee_purchase.share_count)
         portfolio_events.append(purchase_event)
