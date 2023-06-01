@@ -1,6 +1,5 @@
 from src.events.portfolio_event import PortfolioEvent, PortfolioEventType, get_portfolio_events
 from src.events.tax_event import TaxEvent, TaxType, get_tax_events, get_tax_diff_process
-from src.events.employment_event import EmploymentType
 from src.execute.analytics import get_npv
 
 

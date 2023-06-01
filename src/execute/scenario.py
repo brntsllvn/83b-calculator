@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from src.events.employment_event import EmploymentType, EmployeePurchase
+from src.events.employment_event import EmployeePurchase
 
 
 @dataclass
 class PortfolioEventData:
     vesting_schedule: [int]
-    employment_process: [EmploymentType]
+    termination_idx: int
     employee_purchase: EmployeePurchase = EmployeePurchase(0, 0)
 
 

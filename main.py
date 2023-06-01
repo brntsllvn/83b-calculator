@@ -1,14 +1,14 @@
 from pprint import pp
 
 from src.execute.scenario import PortfolioEventData, TaxEventData, Metadata
-from src.events.employment_event import EmploymentType, EmployeePurchase
+from src.events.employment_event import EmployeePurchase
 from src.execute.scenario_runner import run_scenario
 
 
 def main():
     portfolio_event_data = PortfolioEventData(
         vesting_schedule=[0, 25_000, 25_000, 25_000, 25_000, 0],
-        employment_process=[EmploymentType.EMPLOYED] * 6
+        termination_idx=-1
     )
     tax_event_data = TaxEventData(
         marginal_income_tax_rate=0.37,

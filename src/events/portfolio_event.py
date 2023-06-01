@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from src.events.employment_event import EmploymentType
-
 
 class PortfolioEventType(Enum):
     def __str__(self):
@@ -40,19 +38,18 @@ def get_portfolio_events(file_83b_election, scenario):
         portfolio_events.append(election_event)
 
     for idx in range(1, len(scenario.vesting_schedule)):
-        employment_status = scenario.employment_process[idx]
-        if employment_status is EmploymentType.EMPLOYED:
-            vesting_share_count = scenario.vesting_schedule[idx]
-            if vesting_share_count > 0:
-                vesting_event = PortfolioEvent(
-                    idx, PortfolioEventType.VEST, vesting_share_count)
-                portfolio_events.append(vesting_event)
-        else:
+        if idx == scenario.termination_idx:
             # TODO: add cases for FMV > purchase, FMV == purchase, FMV < puchase
             repurchase_event = PortfolioEvent(
                 idx, PortfolioEventType.REPURCHASE, share_grant)
             portfolio_events.append(repurchase_event)
             break
+        else:
+            vesting_share_count = scenario.vesting_schedule[idx]
+            if vesting_share_count > 0:
+                vesting_event = PortfolioEvent(
+                    idx, PortfolioEventType.VEST, vesting_share_count)
+                portfolio_events.append(vesting_event)
 
         if idx == len(scenario.vesting_schedule) - 1:
             # TODO add cases for short-term holding period and long-term

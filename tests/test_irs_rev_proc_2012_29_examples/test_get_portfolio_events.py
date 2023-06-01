@@ -1,11 +1,11 @@
 from src.execute.scenario import PortfolioEventData
-from src.events.employment_event import EmploymentType, EmployeePurchase
+from src.events.employment_event import EmployeePurchase
 from src.events.portfolio_event import PortfolioEvent, PortfolioEventType, get_portfolio_events
 
 
 portfolio_event_data_examples_1_2 = PortfolioEventData(
     vesting_schedule=[0, 0, 25_000, 0],
-    employment_process=[EmploymentType.EMPLOYED] * 4,
+    termination_idx=-1,
     employee_purchase=EmployeePurchase(1, 25_000)
 )
 
@@ -49,12 +49,7 @@ def test_get_portfolio_events_forgo_83b_with_purchase():
 def test_get_portfolio_events_file_83b_with_purchase_and_termination():
     portfolio_event_data_example_3 = PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
-        employment_process=[
-            EmploymentType.EMPLOYED,
-            EmploymentType.TERMINATED,
-            EmploymentType.UNEMPLOYED,
-            EmploymentType.UNEMPLOYED
-        ],
+        termination_idx=1,
         employee_purchase=EmployeePurchase(1, 25_000)
     )
     portfolio_events = get_portfolio_events(
@@ -72,7 +67,7 @@ def test_get_portfolio_events_file_83b_with_purchase_and_termination():
 
 portfolio_event_data_examples_4_5 = PortfolioEventData(
     vesting_schedule=[0, 0, 25_000, 0],
-    employment_process=[EmploymentType.EMPLOYED] * 4,
+    termination_idx=-1,
     employee_purchase=None
 )
 
@@ -112,12 +107,7 @@ def test_get_portfolio_events_forgo_83b():
 def test_get_portfolio_events_file_83b_with_termination():
     portfolio_event_data_example_6 = PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
-        employment_process=[
-            EmploymentType.EMPLOYED,
-            EmploymentType.TERMINATED,
-            EmploymentType.UNEMPLOYED,
-            EmploymentType.UNEMPLOYED
-        ],
+        termination_idx=1,
         employee_purchase=None
     )
     portfolio_events = get_portfolio_events(
