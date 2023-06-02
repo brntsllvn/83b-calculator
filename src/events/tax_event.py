@@ -139,6 +139,8 @@ def get_no_83b_basis(all_portfolio_events,
 
 
 def get_purchase_dollars(employee_purchase):
+    if employee_purchase is None:
+        return 0
     return 1.0 * employee_purchase.price_per_share * employee_purchase.share_count
 
 
