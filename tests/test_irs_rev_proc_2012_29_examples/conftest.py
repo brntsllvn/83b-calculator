@@ -1,8 +1,8 @@
 import pytest
 
-from src.execute.scenario import PortfolioEventData
+from src.domain.scenario import PortfolioEventData
 from src.domain.employee_purchase import EmployeePurchase
-from src.execute.scenario import TaxEventData
+from src.domain.scenario import TaxEventData
 
 
 @pytest.fixture
