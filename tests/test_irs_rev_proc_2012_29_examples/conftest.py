@@ -40,3 +40,11 @@ def tax_event_data():
         marginal_long_term_capital_gains_rate=0.20,
         share_price_process=[1, 1, 1.6, 2.4],
     )
+
+@pytest.fixture
+def portfolio_event_data_with_termination(portfolio_event_data):
+    return PortfolioEventData(
+        vesting_schedule=portfolio_event_data.vesting_schedule,
+        termination_idx=1,
+        employee_purchase=portfolio_event_data.employee_purchase
+    )
