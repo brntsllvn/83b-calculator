@@ -29,7 +29,7 @@ def portfolio_event_data():
     return PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
         termination_idx=-1,
-        employee_purchase=None
+        employee_purchase=EmployeePurchase(0, 0)
     )
 
 

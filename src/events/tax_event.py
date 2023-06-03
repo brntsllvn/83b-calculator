@@ -140,7 +140,14 @@ def get_no_83b_basis(all_portfolio_events,
 
 def get_purchase_dollars(employee_purchase):
     if employee_purchase is None:
-        return 0
+        raise Exception("Employee purchase is None")
+
+    if employee_purchase.price_per_share is None:
+        raise Exception("Employee purchase price per share is None")
+
+    if employee_purchase.share_count is None:
+        raise Exception("Employee purchase share count is None")
+
     return 1.0 * employee_purchase.price_per_share * employee_purchase.share_count
 
 
