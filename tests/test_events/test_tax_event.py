@@ -1,6 +1,6 @@
 import pytest
 
-from src.events.employment_event import EmployeePurchase
+from src.domain.employee_purchase import EmployeePurchase
 from src.events.tax_event import get_purchase_dollars
 
 cases = [

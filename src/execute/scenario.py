@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.events.employment_event import EmployeePurchase
+from src.domain.employee_purchase import EmployeePurchase
 
 
 @dataclass

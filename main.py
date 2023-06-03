@@ -1,7 +1,7 @@
 from pprint import pp
 
 from src.execute.scenario import PortfolioEventData, TaxEventData, Metadata
-from src.events.employment_event import EmployeePurchase
+from src.domain.employee_purchase import EmployeePurchase
 from src.execute.scenario_runner import run_scenario
 
 

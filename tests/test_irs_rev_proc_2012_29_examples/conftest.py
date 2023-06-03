@@ -1,7 +1,7 @@
 import pytest
 
 from src.execute.scenario import PortfolioEventData
-from src.events.employment_event import EmployeePurchase
+from src.domain.employee_purchase import EmployeePurchase
 from src.execute.scenario import TaxEventData
 
 
@@ -40,6 +40,7 @@ def tax_event_data():
         marginal_long_term_capital_gains_rate=0.20,
         share_price_process=[1, 1, 1.6, 2.4],
     )
+
 
 @pytest.fixture
 def portfolio_event_data_with_termination(portfolio_event_data):
