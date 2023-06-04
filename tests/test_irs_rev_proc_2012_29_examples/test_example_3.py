@@ -1,5 +1,5 @@
 from src.events.portfolio_event import PortfolioEvent, PortfolioEventType, get_portfolio_events
-from src.events.tax_event import TaxEvent, TaxType, get_tax_events
+from src.events.tax_event import get_tax_events
 
 # https://www.irs.gov/irb/2012-28_IRB#RP-2012-29
 # Example (3)

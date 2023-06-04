@@ -1,7 +1,4 @@
-from pprint import pp
-
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
-from src.domain.employee_purchase import EmployeePurchase
 from src.execute.scenario_runner import run_scenario
 
 
@@ -19,7 +16,7 @@ def main():
         discount_rate=0.06
     )
 
-    results = run_scenario(portfolio_event_data, tax_event_data, metadata)
+    return run_scenario(portfolio_event_data, tax_event_data, metadata)
 
 
 main()

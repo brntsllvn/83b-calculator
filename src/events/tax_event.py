@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from src.events.portfolio_event import PortfolioEvent, PortfolioEventType
+from src.events.portfolio_event import PortfolioEventType
 
 
 class TaxType(Enum):
