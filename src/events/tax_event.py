@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from src.events.portfolio_event import PortfolioEventType
+from src.domain.portfolio_event import Grant, File83b, Vest, Sell
 
 
 class TaxType(Enum):
@@ -28,20 +28,17 @@ def get_tax_events(portfolio_events,
     filed_83b = get_filed_83b(portfolio_events)
     tax_events = []
     for portfolio_event in portfolio_events:
-        pet = portfolio_event.portfolio_event_type
         tax_event = None
-        if pet is PortfolioEventType.GRANT:
+        if isinstance(portfolio_event, Grant):
             continue
-        elif pet is PortfolioEventType.PURCHASE:
-            continue
-        elif pet is PortfolioEventType.FILE_83B:
+        elif isinstance(portfolio_event, File83b):
             tax_event = get_83b_taxable_event(
                 portfolio_event,
                 tax_event_data.share_price_process[0],
                 employee_purchase,
                 tax_event_data.marginal_income_tax_rate
             )
-        elif pet is PortfolioEventType.VEST:
+        elif isinstance(portfolio_event, Vest):
             tax_event = get_vest_taxable_event(
                 filed_83b,
                 portfolio_event,
@@ -49,9 +46,7 @@ def get_tax_events(portfolio_events,
                 tax_event_data.share_price_process,
                 tax_event_data.marginal_income_tax_rate
             )
-        elif pet is PortfolioEventType.REPURCHASE:
-            print("NOT IMPLEMENTED")
-        elif pet is PortfolioEventType.SALE:
+        elif isinstance(portfolio_event, Sell):
             tax_event = get_sale_taxable_event(
                 filed_83b,
                 portfolio_event,
@@ -68,7 +63,7 @@ def get_tax_events(portfolio_events,
 
 def get_filed_83b(portfolio_events):
     for portfolio_event in portfolio_events:
-        if portfolio_event.portfolio_event_type is PortfolioEventType.FILE_83B:
+        if isinstance(portfolio_event, File83b):
             return True
     return False
 
@@ -132,7 +127,7 @@ def get_no_83b_basis(all_portfolio_events,
                      share_price_process):
     basis = 0
     for portfolio_event in all_portfolio_events:
-        if portfolio_event.portfolio_event_type is PortfolioEventType.VEST:
+        if isinstance(portfolio_event, Vest):
             basis += 1.0 * portfolio_event.share_count * \
                 share_price_process[portfolio_event.time_idx]
     return basis

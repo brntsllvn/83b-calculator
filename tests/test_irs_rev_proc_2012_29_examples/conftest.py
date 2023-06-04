@@ -1,26 +1,26 @@
 import pytest
 
 from src.domain.scenario import PortfolioEventData
-from src.domain.employee_purchase import EmployeePurchase
+from src.domain.purchase import EmployeePurchase
 from src.domain.scenario import TaxEventData
 
 
 @pytest.fixture
-def purchase_portfolio_event_data():
+def portfolio_event_data_with_purchase():
     return PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
         termination_idx=-1,
-        employee_purchase=EmployeePurchase(1, 25_000)
+        employee_purchase=EmployeePurchase(25_000, 1)
     )
 
 
 @pytest.fixture
 def purchase_portfolio_event_data_with_termination(
-        purchase_portfolio_event_data):
+        portfolio_event_data_with_purchase):
     return PortfolioEventData(
-        vesting_schedule=purchase_portfolio_event_data.vesting_schedule,
+        vesting_schedule=portfolio_event_data_with_purchase.vesting_schedule,
         termination_idx=1,
-        employee_purchase=purchase_portfolio_event_data.employee_purchase
+        employee_purchase=portfolio_event_data_with_purchase.employee_purchase
     )
 
 
