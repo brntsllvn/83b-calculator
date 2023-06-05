@@ -35,12 +35,26 @@ class CapitalGains(TaxEvent):
     marginal_rate: float
 
     def __eq__(self, o):
-        if isinstance(o, CapitalGains):
-            equal = self.time_idx == o.time_idx and \
-                self.taxable_dollars == o.taxable_dollars and \
-                self.tax_liability_dollars == o.tax_liability_dollars and \
-                self.marginal_rate == o.marginal_rate
-            lots_equal = all(self_lot == o_lot for self_lot,
-                             o_lot in zip(self.lots, o.lots))
-            return equal and lots_equal
-        return False
+        if o is None:
+            return False
+
+        if not isinstance(o, CapitalGains):
+            return False
+
+        if self.time_idx != o.time_idx or \
+                self.taxable_dollars != o.taxable_dollars or \
+                self.tax_liability_dollars != o.tax_liability_dollars or \
+                self.marginal_rate != o.marginal_rate:
+            return False
+
+        if (self.lots is None and o.lots is not None) or (self.lots is not None and o.lots is None):
+            return False
+
+        if self.lots is not None and o.lots is not None:
+            if len(self.lots) != len(o.lots):
+                return False
+
+            if not all(self_lot == o_lot for self_lot, o_lot in zip(self.lots, o.lots)):
+                return False
+
+        return True

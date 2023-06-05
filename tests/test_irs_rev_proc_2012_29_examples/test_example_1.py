@@ -1,5 +1,5 @@
 from src.domain.portfolio_event import Grant, File83b, Vest, Sell
-from src.domain.purchase import EmployeePurchase, EmployerPurchase
+from src.domain.purchase import EmployeePurchase
 from src.events.portfolio_event import get_portfolio_events
 from src.domain.tax_event import Lot, IncomeTax, CapitalGains
 from src.events.tax_event import get_tax_events

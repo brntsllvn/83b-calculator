@@ -63,3 +63,8 @@ class Repurchase(PortfolioEvent):
                 self.employer_purchase.share_count == o.employer_purchase.share_count
             return equal
         return False
+
+
+@dataclass
+class Forfeit(PortfolioEvent):
+    pass

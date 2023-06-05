@@ -1,4 +1,4 @@
-from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase
+from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase, Forfeit
 from src.domain.purchase import EmployerPurchase
 
 
@@ -15,10 +15,14 @@ def get_portfolio_events(file_83b_election, scenario):
 
     for idx in range(1, len(scenario.vesting_schedule)):
         if idx == scenario.termination_idx:
-            employer_purchase = _get_employer_purchase(
-                scenario.employee_purchase)
-            repurchase_event = Repurchase(idx, share_grant, employer_purchase)
-            portfolio_events.append(repurchase_event)
+            if scenario.employee_purchase.share_count > 0:
+                employer_purchase = _get_employer_purchase(
+                    scenario.employee_purchase)
+                repurchase_event = Repurchase(
+                    idx, share_grant, employer_purchase)
+                portfolio_events.append(repurchase_event)
+            else:
+                portfolio_events.append(Forfeit(idx, share_grant))
             break
         else:
             vesting_share_count = scenario.vesting_schedule[idx]

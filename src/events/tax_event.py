@@ -1,4 +1,4 @@
-from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase
+from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase, Forfeit
 from src.domain.tax_event import Lot, IncomeTax, CapitalGains
 
 
@@ -9,7 +9,8 @@ def get_tax_events(portfolio_events,
     tax_events = []
     for portfolio_event in portfolio_events:
         tax_event = None
-        if isinstance(portfolio_event, Grant):
+        if isinstance(portfolio_event, Grant) or \
+                isinstance(portfolio_event, Forfeit):
             continue
         elif isinstance(portfolio_event, File83b):
             tax_event = get_83b_taxable_event(
