@@ -15,7 +15,7 @@ def portfolio_event_data_with_purchase():
 
 
 @pytest.fixture
-def purchase_portfolio_event_data_with_termination(
+def portfolio_event_data_with_purchase_and_termination(
         portfolio_event_data_with_purchase):
     return PortfolioEventData(
         vesting_schedule=portfolio_event_data_with_purchase.vesting_schedule,

@@ -1,25 +1,5 @@
-from dataclasses import dataclass
-from enum import Enum
-
-from src.domain.portfolio_event import Grant, File83b, Vest, Sell
-
-
-class TaxType(Enum):
-    def __str__(self):
-        return str(self.value)
-    INCOME = 1
-    CAPITAL_GAINS_LONG_TERM = 2
-    CAPITAL_GAINS_SHORT_TERM = 3
-    REPURCHASE = 4
-    ZERO = 10
-
-
-@dataclass
-class TaxEvent:
-    time_idx: int
-    taxable_dollars: float
-    tax_type: TaxType
-    tax_dollars: float
+from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase
+from src.domain.tax_event import Lot, IncomeTax, CapitalGains
 
 
 def get_tax_events(portfolio_events,
@@ -46,7 +26,8 @@ def get_tax_events(portfolio_events,
                 tax_event_data.share_price_process,
                 tax_event_data.marginal_income_tax_rate
             )
-        elif isinstance(portfolio_event, Sell):
+        elif isinstance(portfolio_event, Sell) or \
+                isinstance(portfolio_event, Repurchase):
             tax_event = get_sale_taxable_event(
                 filed_83b,
                 portfolio_event,
@@ -72,14 +53,13 @@ def get_83b_taxable_event(
         portfolio_event,
         price_per_share_at_grant,
         employee_purchase,
-        merginal_income_tax_rate):
+        marginal_income_tax_rate):
     employee_purchase_dollars = get_purchase_dollars(employee_purchase)
     taxable_dollars = 1.0 * price_per_share_at_grant * \
         portfolio_event.share_count - employee_purchase_dollars
-    tax_dollars = 1.0 * taxable_dollars * merginal_income_tax_rate
-    if tax_dollars > 0:
-        return TaxEvent(portfolio_event.time_idx, taxable_dollars, TaxType.INCOME, tax_dollars)
-    return None
+    tax_dollars = 1.0 * taxable_dollars * marginal_income_tax_rate
+    return IncomeTax(
+        portfolio_event.time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 
 
 def get_vest_taxable_event(
@@ -87,7 +67,7 @@ def get_vest_taxable_event(
         portfolio_event,
         employee_purchase,
         share_price_process,
-        merginal_income_tax_rate):
+        marginal_income_tax_rate):
     if filed_83b:
         return None
 
@@ -96,8 +76,8 @@ def get_vest_taxable_event(
     employee_purchase_dollars = get_purchase_dollars(employee_purchase)
     taxable_dollars = 1.0 * share_price * \
         portfolio_event.share_count - employee_purchase_dollars
-    tax_dollars = 1.0 * taxable_dollars * merginal_income_tax_rate
-    return TaxEvent(time_idx, taxable_dollars, TaxType.INCOME, tax_dollars)
+    tax_dollars = 1.0 * taxable_dollars * marginal_income_tax_rate
+    return IncomeTax(time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 
 
 def get_sale_taxable_event(
@@ -106,43 +86,53 @@ def get_sale_taxable_event(
         all_portfolio_events,
         share_price_process,
         marginal_long_term_capital_gains_rate):
+    sell_time_idx = sale_portfolio_event.time_idx
     fair_market_value = 1.0 * \
-        sale_portfolio_event.share_count * share_price_process[-1]
+        sale_portfolio_event.share_count * share_price_process[sell_time_idx]
     if filed_83b:
-        basis = 1.0 * sale_portfolio_event.share_count * share_price_process[0]
+        grant_share_price = share_price_process[0]
+        lots = get_yes_83b_lots(
+            grant_share_price, sale_portfolio_event.share_count)
     else:
-        basis = get_no_83b_basis(all_portfolio_events,
-                                 share_price_process)
+        lots = get_no_83b_lots(
+            all_portfolio_events, share_price_process)
 
+    basis = get_basis(lots)
     taxable_dollars = fair_market_value - basis
     tax_dollars = 1.0 * taxable_dollars * marginal_long_term_capital_gains_rate
-    return TaxEvent(
+    return CapitalGains(
         sale_portfolio_event.time_idx,
         taxable_dollars,
-        TaxType.CAPITAL_GAINS_LONG_TERM,
-        tax_dollars)
+        tax_dollars,
+        lots,
+        marginal_long_term_capital_gains_rate)
 
 
-def get_no_83b_basis(all_portfolio_events,
-                     share_price_process):
+def get_basis(lots):
     basis = 0
-    for portfolio_event in all_portfolio_events:
-        if isinstance(portfolio_event, Vest):
-            basis += 1.0 * portfolio_event.share_count * \
-                share_price_process[portfolio_event.time_idx]
+    for lot in lots:
+        basis += lot.share_count * lot.basis_per_share
     return basis
 
 
+def get_yes_83b_lots(grant_share_price, sell_share_count):
+    lots = [Lot(0, grant_share_price, sell_share_count)]
+    return lots
+
+
+def get_no_83b_lots(all_portfolio_events,
+                    share_price_process):
+    lots = []
+    for portfolio_event in all_portfolio_events:
+        if isinstance(portfolio_event, Vest):
+            event_basis = share_price_process[portfolio_event.time_idx]
+            event_share_count = portfolio_event.share_count
+            lot = Lot(portfolio_event.time_idx, event_basis, event_share_count)
+            lots.append(lot)
+    return lots
+
+
 def get_purchase_dollars(employee_purchase):
-    if employee_purchase is None:
-        raise Exception("Employee purchase is None")
-
-    if employee_purchase.price_per_share is None:
-        raise Exception("Employee purchase price per share is None")
-
-    if employee_purchase.share_count is None:
-        raise Exception("Employee purchase share count is None")
-
     return 1.0 * employee_purchase.price_per_share * employee_purchase.share_count
 
 
@@ -165,4 +155,5 @@ def _find_tax_event_by_id(time_idx, tax_events):
     for tax_event in tax_events:
         if tax_event.time_idx == time_idx:
             return tax_event
-    return TaxEvent(time_idx, 0.0, TaxType.ZERO, 0.0)
+    # TODO: fix this without introducing dummy object
+    return -1

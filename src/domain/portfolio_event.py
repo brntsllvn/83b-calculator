@@ -27,6 +27,11 @@ class Grant(PortfolioEvent):
             return equal
         return False
 
+    def __post_init__(self):
+        if not isinstance(self.employee_purchase, EmployeePurchase):
+            raise TypeError(
+                "employee_purchase must be of type EmployeePurchase")
+
     # def common_method(self):
     #     print("Common method in FirstImplementation")
 
@@ -43,10 +48,15 @@ class Vest(PortfolioEvent):
 
 @dataclass
 class Sell(PortfolioEvent):
+    pass
+
+
+@dataclass
+class Repurchase(PortfolioEvent):
     employer_purchase: EmployerPurchase
 
     def __eq__(self, o):
-        if isinstance(o, Sell):
+        if isinstance(o, Repurchase):
             equal = self.time_idx == o.time_idx and \
                 self.share_count == o.share_count and \
                 self.employer_purchase.price_per_share == o.employer_purchase.price_per_share and \

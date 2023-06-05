@@ -1,4 +1,4 @@
-from src.domain.portfolio_event import Grant, File83b, Vest, Sell
+from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase
 from src.domain.purchase import EmployerPurchase
 
 
@@ -15,14 +15,9 @@ def get_portfolio_events(file_83b_election, scenario):
 
     for idx in range(1, len(scenario.vesting_schedule)):
         if idx == scenario.termination_idx:
-            """
-                TODO Repurchase option cases:
-                1. Default: "Company A will repurchase the stock from E for the lesser
-                    of the then current fair market value or the original purchase price"
-                    1.1 min(FMV, purchase_price)
-                2. max(FMV, purchase_price)
-            """
-            repurchase_event = Sell(idx, share_grant, EmployerPurchase(0, 0))
+            employer_purchase = _get_employer_purchase(
+                scenario.employee_purchase)
+            repurchase_event = Repurchase(idx, share_grant, employer_purchase)
             portfolio_events.append(repurchase_event)
             break
         else:
@@ -33,7 +28,18 @@ def get_portfolio_events(file_83b_election, scenario):
 
         if idx == len(scenario.vesting_schedule) - 1:
             # TODO add cases for short-term holding period and long-term
-            sale_event = Sell(idx, share_grant, EmployerPurchase(0, 0))
+            sale_event = Sell(idx, share_grant)
             portfolio_events.append(sale_event)
 
     return portfolio_events
+
+
+def _get_employer_purchase(employee_purchase):
+    """
+        TODO Repurchase option cases:
+        1. Default: "Company A will repurchase the stock from E for the lesser
+            of the then current fair market value or the original purchase price"
+            1.1 min(FMV, purchase_price)
+        2. max(FMV, purchase_price)
+    """
+    return EmployerPurchase(employee_purchase.share_count, employee_purchase.price_per_share)
