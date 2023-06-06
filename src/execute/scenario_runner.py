@@ -1,6 +1,7 @@
+from src.domain.scenario_result import ScenarioResult
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events, get_tax_diff_process
-from src.execute.analytics import get_npv
+from src.execute.analytics import npv
 
 
 def run_scenario(portfolio_event_data, tax_event_data, metadata):
@@ -13,9 +14,8 @@ def run_scenario(portfolio_event_data, tax_event_data, metadata):
         file_83b_tax_events,
         forgo_83b_tax_events)
     raw = sum(tax_diff_process)
-    print(raw)
-    npv = get_npv(tax_diff_process, metadata.discount_rate)
-    print(npv)
+    npv = npv(tax_diff_process, metadata.discount_rate)
+    return ScenarioResult(raw, npv)
 
 
 def run_case(file_83b_election, portfolio_event_data, tax_event_data):
