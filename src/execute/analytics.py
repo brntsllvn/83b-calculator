@@ -4,4 +4,4 @@ def calculate_npv(tax_diff_process, discount_rate):
         if cash_flow is None or isinstance(cash_flow, str):
             raise TypeError('Invalid input')
         total += 1.0 * (cash_flow / ((1 + discount_rate) ** i))
-    return round(total)
+    return round(total, 2)

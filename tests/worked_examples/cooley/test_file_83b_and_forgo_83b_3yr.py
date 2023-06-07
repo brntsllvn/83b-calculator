@@ -75,4 +75,4 @@ def test_value_of_83b():
         cooley_tax_event_data,
         metadata)
     assert scenario_result.raw == 16_830
-    assert scenario_result.npv == 16_914
+    assert scenario_result.npv == 16_913.73

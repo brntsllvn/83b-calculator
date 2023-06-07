@@ -1,4 +1,5 @@
-from abc import ABC  # , abstractmethod
+from typing import List
+from abc import ABC
 from dataclasses import dataclass
 
 
@@ -31,7 +32,7 @@ class Lot:
 
 @dataclass
 class CapitalGains(TaxEvent):
-    lots: [Lot]
+    lots: List[Lot]
     marginal_rate: float
 
     def __eq__(self, o):

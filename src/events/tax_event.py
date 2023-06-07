@@ -56,9 +56,9 @@ def get_83b_taxable_event(
         employee_purchase,
         marginal_income_tax_rate):
     employee_purchase_dollars = get_purchase_dollars(employee_purchase)
-    taxable_dollars = 1.0 * price_per_share_at_grant * \
-        portfolio_event.share_count - employee_purchase_dollars
-    tax_dollars = 1.0 * taxable_dollars * marginal_income_tax_rate
+    taxable_dollars = round(1.0 * price_per_share_at_grant *
+                            portfolio_event.share_count - employee_purchase_dollars, 2)
+    tax_dollars = round(1.0 * taxable_dollars * marginal_income_tax_rate, 2)
     return IncomeTax(
         portfolio_event.time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 
@@ -75,8 +75,8 @@ def get_vest_taxable_event(
     time_idx = portfolio_event.time_idx
     share_price = share_price_process[time_idx]
     employee_purchase_dollars = get_purchase_dollars(employee_purchase)
-    taxable_dollars = 1.0 * share_price * \
-        portfolio_event.share_count - employee_purchase_dollars
+    taxable_dollars = round(1.0 * share_price *
+                            portfolio_event.share_count - employee_purchase_dollars, 2)
     tax_dollars = 1.0 * taxable_dollars * marginal_income_tax_rate
     return IncomeTax(time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 
@@ -99,8 +99,8 @@ def get_sale_taxable_event(
             all_portfolio_events, share_price_process)
 
     basis = get_basis(lots)
-    taxable_dollars = fair_market_value - basis
-    tax_dollars = 1.0 * taxable_dollars * marginal_long_term_capital_gains_rate
+    taxable_dollars = round(fair_market_value - basis, 2)
+    tax_dollars = round(1.0 * taxable_dollars * marginal_long_term_capital_gains_rate, 2)
     return CapitalGains(
         sale_portfolio_event.time_idx,
         taxable_dollars,
