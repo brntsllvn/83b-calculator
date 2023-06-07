@@ -147,14 +147,16 @@ def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events
 
 
 def _subtract_tax_events(time_idx, yes_83b_tax_events, no_83b_tax_events):
-    yes_83b_tax_event = _find_tax_event_by_id(time_idx, yes_83b_tax_events)
-    no_83b_tax_event = _find_tax_event_by_id(time_idx, no_83b_tax_events)
-    return no_83b_tax_event.tax_dollars - yes_83b_tax_event.tax_dollars
+    yes_83b_tax_liability = _find_tax_liability_by_id(time_idx, yes_83b_tax_events)
+    no_83b_tax_liability = _find_tax_liability_by_id(time_idx, no_83b_tax_events)
+    # NOTE: we flip the sign since tax is a cash outflow
+    return -1.0 * (yes_83b_tax_liability - no_83b_tax_liability)
 
 
-def _find_tax_event_by_id(time_idx, tax_events):
+def _find_tax_liability_by_id(time_idx, tax_events):
     for tax_event in tax_events:
+        # TODO: check for multiple items with the same index
+        # This could happen if someone vests and sells in the same year
         if tax_event.time_idx == time_idx:
-            return tax_event
-    # TODO: fix this without introducing dummy object
-    return -1
+            return tax_event.tax_liability_dollars
+    return 0

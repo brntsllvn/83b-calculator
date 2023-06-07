@@ -69,25 +69,10 @@ def test_cooley_get_tax_events_forgo_83b():
         2, 400_000, 80_000, [Lot(1, 1.0, 100_000)], 0.20)
 
 
-# TODO
-
-"""
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-    DO THIS NEXT!!!!!
-"""
-
-
-# def test_value_of_83b():
-#     scenario_result = run_scenario(
-#         cooley_portfolio_event_data,
-#         cooley_tax_event_data,
-#         metadata)
-#     assert scenario_result.raw == 16_830
-#     assert scenario_result.npv == 16_914
+def test_value_of_83b():
+    scenario_result = run_scenario(
+        cooley_portfolio_event_data,
+        cooley_tax_event_data,
+        metadata)
+    assert scenario_result.raw == 16_830
+    assert scenario_result.npv == 16_914

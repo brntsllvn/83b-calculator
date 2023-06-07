@@ -1,6 +1,6 @@
 import pytest
 
-from src.execute.analytics import npv
+from src.execute.analytics import calculate_npv
 
 @pytest.mark.parametrize(
     "cash_flows, discount_rate, expected, test_case",
@@ -20,6 +20,6 @@ from src.execute.analytics import npv
 def test_npv(cash_flows, discount_rate, expected, test_case):
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected, match="Invalid input"):
-            npv(cash_flows, discount_rate)
+            calculate_npv(cash_flows, discount_rate)
     else:
-        assert pytest.approx(npv(cash_flows, discount_rate), 0.01) == expected, f"Failed for test case: {test_case}"
+        assert pytest.approx(calculate_npv(cash_flows, discount_rate), 0.01) == expected, f"Failed for test case: {test_case}"
