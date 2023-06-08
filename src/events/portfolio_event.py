@@ -30,7 +30,7 @@ def get_portfolio_events(file_83b_election, scenario):
                 vesting_event = Vest(idx, vesting_share_count)
                 portfolio_events.append(vesting_event)
 
-        if idx == len(scenario.vesting_schedule) - 1:
+        if idx == scenario.liquidation_idx:
             # TODO add cases for short-term holding period and long-term
             sale_event = Sell(idx, share_grant)
             portfolio_events.append(sale_event)

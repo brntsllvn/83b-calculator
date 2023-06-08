@@ -5,7 +5,8 @@ from src.execute.scenario_runner import run_scenario
 def main():
     portfolio_event_data = PortfolioEventData(
         vesting_schedule=[0, 25_000, 25_000, 25_000, 25_000, 0],
-        termination_idx=-1
+        termination_idx=-1,
+        liqiudation_idx=5,
     )
     tax_event_data = TaxEventData(
         marginal_income_tax_rate=0.37,

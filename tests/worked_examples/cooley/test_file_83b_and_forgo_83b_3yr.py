@@ -12,7 +12,8 @@ from src.execute.scenario_runner import run_scenario
 cooley_portfolio_event_data = PortfolioEventData(
     [0, 100_000, 0],
     -1,
-    EmployeePurchase(0, 0)
+    EmployeePurchase(0, 0),
+    2
 )
 
 cooley_tax_event_data = TaxEventData(
