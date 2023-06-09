@@ -1,6 +1,6 @@
 from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase, Forfeit
 from src.domain.tax_event import IncomeTax, CapitalGains
-from src.domain.lot import Lot, get_portfolio_lots
+from src.domain.lot import get_portfolio_lots
 
 
 def get_tax_events(portfolio_events,
