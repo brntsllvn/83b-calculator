@@ -2,11 +2,12 @@ from src.domain.portfolio_event import Grant, File83b, Vest
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.domain.purchase import EmployeePurchase
 from src.domain.tax_event import IncomeTax
+from src.domain.lot import Lot, get_portfolio_lots
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
 from src.execute.scenario_runner import run_scenario
 
-# https://www.investopedia.com/terms/1/83b-election.asp
+# https://seraf-investor.com/compass/article/seraf-toolbox-dealing-restricted-stock-model-irs-83b-election-form
 
 portfolio_event_data = PortfolioEventData(
     [0,	25_000, 25_000, 25_000, 25_000],
@@ -36,6 +37,16 @@ def test_get_portfolio_events_file_83b():
     assert portfolio_events[5] == Vest(4, 25_000)
 
 
+def test_get_lots_file_83b():
+    portfolio_events = get_portfolio_events(
+        True, portfolio_event_data)
+    portfolio_lots = get_portfolio_lots(
+        True, portfolio_events, tax_event_data.share_price_process
+    )
+    assert len(portfolio_lots) == 1
+    assert portfolio_lots[0] == Lot(0, 0.05, 100_000)
+
+
 def test_get_tax_events_file_83b():
     portfolio_events = get_portfolio_events(
         True, portfolio_event_data)
@@ -56,6 +67,19 @@ def test_get_portfolio_events_forgo_83b():
     assert portfolio_events[2] == Vest(2, 25_000)
     assert portfolio_events[3] == Vest(3, 25_000)
     assert portfolio_events[4] == Vest(4, 25_000)
+
+
+def test_get_lots_forgo_83b():
+    portfolio_events = get_portfolio_events(
+        False, portfolio_event_data)
+    portfolio_lots = get_portfolio_lots(
+        False, portfolio_events, tax_event_data.share_price_process
+    )
+    assert len(portfolio_lots) == 4
+    assert portfolio_lots[0] == Lot(1, 0.10, 25_000)
+    assert portfolio_lots[1] == Lot(2, 0.15, 25_000)
+    assert portfolio_lots[2] == Lot(3, 0.20, 25_000)
+    assert portfolio_lots[3] == Lot(4, 0.25, 25_000)
 
 
 def test_get_tax_events_forgo_83b():

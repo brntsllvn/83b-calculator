@@ -2,7 +2,7 @@ from src.domain.portfolio_event import Grant, File83b, Vest, Sell
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.domain.purchase import EmployeePurchase
 from src.domain.tax_event import IncomeTax, CapitalGains
-from src.domain.lot import Lot
+from src.domain.lot import Lot, get_portfolio_lots
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
 # from src.execute.scenario_runner import run_scenario
@@ -36,14 +36,15 @@ def test_get_portfolio_events_file_83b_with_purchase():
     assert portfolio_events[4] == Sell(3, 200_000)
 
 
-# def test_get_portfolio_lots_file_83b_with_purchase():
-#     portfolio_events = get_portfolio_events(
-#         True, portfolio_event_data)
-#     portfolio_lots =
-#     lots = get_portfolio_lots
-#     portfolio_lots = portfolio_events[4].portfolio_lots
-#     assert len(portfolio_lots) == 1
-#     assert portfolio_lots[0] == Lot(0, 0.0001, 200_000)
+def test_get_portfolio_lots_file_83b_with_purchase():
+    portfolio_events = get_portfolio_events(
+        True, portfolio_event_data)
+    portfolio_lots = get_portfolio_lots(
+        True, portfolio_events, tax_event_data.share_price_process
+    )
+    assert len(portfolio_lots) == 1
+    assert portfolio_lots[0] == Lot(0, 0.0001, 200_000)
+
 
 def test_get_tax_events_file_83b_with_purchase():
     portfolio_events = get_portfolio_events(
@@ -55,7 +56,7 @@ def test_get_tax_events_file_83b_with_purchase():
     assert len(tax_events) == 2
     assert tax_events[0] == IncomeTax(0, 0, 0, 0.37)
     assert tax_events[1] == CapitalGains(
-        3, 200_000 * 2 - 20, 79_996, [Lot(0, 0.0001, 200_000)], 0.20)
+        3, 200_000 * 2 - 20, 79_996, 0.20)
 
 
 def test_get_portfolio_events_forgo_83b_with_purchase():
@@ -69,6 +70,17 @@ def test_get_portfolio_events_forgo_83b_with_purchase():
     assert portfolio_events[3] == Sell(3, 200_000)
 
 
+def test_get_portfolio_lots_forgo_83b_with_purchase():
+    portfolio_events = get_portfolio_events(
+        False, portfolio_event_data)
+    portfolio_lots = get_portfolio_lots(
+        False, portfolio_events, tax_event_data.share_price_process
+    )
+    assert len(portfolio_lots) == 2
+    assert portfolio_lots[0] == Lot(1, 0.50, 100_000)
+    assert portfolio_lots[1] == Lot(2, 1.00, 100_000)
+
+
 def test_get_tax_events_forgo_83b_with_purchase():
     portfolio_events = get_portfolio_events(
         False, portfolio_event_data)
@@ -79,11 +91,7 @@ def test_get_tax_events_forgo_83b_with_purchase():
     assert len(tax_events) == 3
     assert tax_events[0] == IncomeTax(1, 49_990, 49_990 * 0.37, 0.37)
     assert tax_events[1] == IncomeTax(2, 99_990, 99_990 * 0.37, 0.37)
-    assert tax_events[2] == CapitalGains(
-        3, 250_000, 50_000, [
-            Lot(1, 0.50, 100_000),
-            Lot(2, 1.00, 100_000)
-        ], 0.20)
+    assert tax_events[2] == CapitalGains(3, 250_000, 50_000, 0.20)
 
 
 # def test_value_of_83b():

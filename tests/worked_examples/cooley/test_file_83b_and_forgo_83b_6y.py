@@ -2,7 +2,7 @@ from src.domain.portfolio_event import Grant, File83b, Vest, Sell
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.domain.purchase import EmployeePurchase
 from src.domain.tax_event import IncomeTax, CapitalGains
-from src.domain.lot import Lot
+from src.domain.lot import Lot, get_portfolio_lots
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
 from src.execute.scenario_runner import run_scenario
@@ -38,6 +38,15 @@ def test_cooley_get_portfolio_events_file_83b():
     assert portfolio_events[6] == Sell(5, 100_000)
 
 
+def test_cooley_get_portfolio_lots_file_83b():
+    portfolio_events = get_portfolio_events(
+        True, cooley_portfolio_event_data)
+    lots = get_portfolio_lots(
+        True, portfolio_events, cooley_tax_event_data.share_price_process)
+    assert len(lots) == 1
+    assert lots[0] == Lot(0, 0.01, 100_000)
+
+
 def test_cooley_get_tax_events_file_83b():
     portfolio_events = get_portfolio_events(
         True, cooley_portfolio_event_data)
@@ -47,8 +56,7 @@ def test_cooley_get_tax_events_file_83b():
         cooley_tax_event_data)
     assert len(tax_events) == 2
     assert tax_events[0] == IncomeTax(0, 1_000, 370, 0.37)
-    assert tax_events[1] == CapitalGains(
-        5, 499_000, 99_800, [Lot(0, 0.01, 100_000)], 0.20)
+    assert tax_events[1] == CapitalGains(5, 499_000, 99_800, 0.20)
 
 
 def test_cooley_get_portfolio_events_forgo_83b():
@@ -63,6 +71,18 @@ def test_cooley_get_portfolio_events_forgo_83b():
     assert portfolio_events[5] == Sell(5, 100_000)
 
 
+def test_cooley_get_portfolio_lots_forgo_83b():
+    portfolio_events = get_portfolio_events(
+        False, cooley_portfolio_event_data)
+    lots = get_portfolio_lots(
+        False, portfolio_events, cooley_tax_event_data.share_price_process)
+    assert len(lots) == 4
+    assert lots[0] == Lot(1, 0.05, 25_000)
+    assert lots[1] == Lot(2, 0.25, 25_000)
+    assert lots[2] == Lot(3, 1.25, 25_000)
+    assert lots[3] == Lot(4, 2.45, 25_000)
+
+
 def test_cooley_get_tax_events_forgo_83b():
     portfolio_events = get_portfolio_events(
         False, cooley_portfolio_event_data)
@@ -75,15 +95,7 @@ def test_cooley_get_tax_events_forgo_83b():
     assert tax_events[1] == IncomeTax(2, 6_250, 2_312.50, 0.37)
     assert tax_events[2] == IncomeTax(3, 31_250, 11_562.50, 0.37)
     assert tax_events[3] == IncomeTax(4, 61_250, 22_662.50, 0.37)
-    assert tax_events[4] == CapitalGains(
-        5, 400_000, 80_000,
-        [
-            Lot(1, 0.05, 25_000),
-            Lot(2, 0.25, 25_000),
-            Lot(3, 1.25, 25_000),
-            Lot(4, 2.45, 25_000)
-        ],
-        0.20)
+    assert tax_events[4] == CapitalGains(5, 400_000, 80_000, 0.20)
 
 
 def test_value_of_83b():

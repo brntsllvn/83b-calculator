@@ -95,7 +95,6 @@ def get_sale_taxable_event(
         sale_portfolio_event.share_count * share_price_process[sell_time_idx]
     lots = get_portfolio_lots(
         filed_83b, all_portfolio_events, share_price_process)
-
     portfolio_basis = get_portfolio_basis(lots)
     taxable_dollars = round(fair_market_value - portfolio_basis, 2)
     tax_dollars = round(1.0 * taxable_dollars *
@@ -104,7 +103,6 @@ def get_sale_taxable_event(
         sale_portfolio_event.time_idx,
         taxable_dollars,
         tax_dollars,
-        lots,
         marginal_long_term_capital_gains_rate)
 
 

@@ -2,7 +2,7 @@ from src.domain.portfolio_event import Grant, File83b, Vest, Sell
 from src.domain.purchase import EmployeePurchase
 from src.events.portfolio_event import get_portfolio_events
 from src.domain.tax_event import IncomeTax, CapitalGains
-from src.domain.lot import Lot
+from src.domain.lot import Lot, get_portfolio_lots
 from src.events.tax_event import get_tax_events
 
 
@@ -19,6 +19,15 @@ def test_get_portfolio_events_file_83b(portfolio_event_data):
     assert portfolio_events[3] == Sell(3, 25_000)
 
 
+def test_get_portfolio_lots_file_83b(portfolio_event_data, tax_event_data):
+    portfolio_events = get_portfolio_events(
+        True, portfolio_event_data)
+    portfolio_lots = get_portfolio_lots(
+        True, portfolio_events, tax_event_data.share_price_process)
+    assert len(portfolio_lots) == 1
+    assert portfolio_lots[0] == Lot(0, 1, 25000)
+
+
 def test_get_tax_events_file_83b(
         portfolio_event_data,
         tax_event_data):
@@ -30,5 +39,4 @@ def test_get_tax_events_file_83b(
         tax_event_data)
     assert len(tax_events) == 2
     assert tax_events[0] == IncomeTax(0, 25_000, 9_250, 0.37)
-    assert tax_events[1] == CapitalGains(
-        3, 35_000, 7_000, [Lot(0, 1, 25000)], 0.20)
+    assert tax_events[1] == CapitalGains(3, 35_000, 7_000, 0.20)

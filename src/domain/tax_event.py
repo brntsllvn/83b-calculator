@@ -1,7 +1,5 @@
-from typing import List
 from abc import ABC
 from dataclasses import dataclass
-from src.domain.lot import Lot
 
 
 @dataclass
@@ -18,7 +16,6 @@ class IncomeTax(TaxEvent):
 
 @dataclass
 class CapitalGains(TaxEvent):
-    lots: List[Lot]
     marginal_rate: float
 
     def __eq__(self, o):
@@ -33,15 +30,4 @@ class CapitalGains(TaxEvent):
                 self.tax_liability_dollars != o.tax_liability_dollars or \
                 self.marginal_rate != o.marginal_rate:
             return False
-
-        if (self.lots is None and o.lots is not None) or (self.lots is not None and o.lots is None):
-            return False
-
-        if self.lots is not None and o.lots is not None:
-            if len(self.lots) != len(o.lots):
-                return False
-
-            if not all(self_lot == o_lot for self_lot, o_lot in zip(self.lots, o.lots)):
-                return False
-
         return True
