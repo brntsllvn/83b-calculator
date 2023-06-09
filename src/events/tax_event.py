@@ -1,5 +1,6 @@
 from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase, Forfeit
-from src.domain.tax_event import Lot, IncomeTax, CapitalGains
+from src.domain.tax_event import IncomeTax, CapitalGains
+from src.domain.lot import Lot
 
 
 def get_tax_events(portfolio_events,
@@ -77,7 +78,8 @@ def get_vest_taxable_event(
     employee_purchase_per_share = employee_purchase.price_per_share
     # TODO: Handle the case when employee buys shares at a discount
     taxable_dollars = round(1.0 *
-                            (share_price - employee_purchase_per_share) * portfolio_event.share_count, 2)
+                            (share_price - employee_purchase_per_share) *
+                            portfolio_event.share_count, 2)
     tax_dollars = round(1.0 * taxable_dollars * marginal_income_tax_rate, 2)
     return IncomeTax(time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 

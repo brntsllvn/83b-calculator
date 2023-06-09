@@ -1,7 +1,8 @@
 from src.domain.portfolio_event import Grant, File83b, Vest, Sell
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.domain.purchase import EmployeePurchase
-from src.domain.tax_event import Lot, IncomeTax, CapitalGains
+from src.domain.tax_event import IncomeTax, CapitalGains
+from src.domain.lot import Lot
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
 from src.execute.scenario_runner import run_scenario
