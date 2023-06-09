@@ -12,7 +12,7 @@ from src.execute.scenario_runner import run_scenario
 cooley_portfolio_event_data = PortfolioEventData(
     [0, 100_000, 0],
     -1,
-    EmployeePurchase(0, 0),
+    EmployeePurchase(0, 0.0),
     2
 )
 
@@ -29,7 +29,7 @@ def test_cooley_get_portfolio_events_file_83b():
     portfolio_events = get_portfolio_events(
         True, cooley_portfolio_event_data)
     assert len(portfolio_events) == 4
-    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0))
+    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0.0))
     assert portfolio_events[1] == File83b(0, 100_000)
     assert portfolio_events[2] == Vest(1, 100_000)
     assert portfolio_events[3] == Sell(2, 100_000)
@@ -52,7 +52,7 @@ def test_cooley_get_portfolio_events_forgo_83b():
     portfolio_events = get_portfolio_events(
         False, cooley_portfolio_event_data)
     assert len(portfolio_events) == 3
-    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0))
+    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0.0))
     assert portfolio_events[1] == Vest(1, 100_000)
     assert portfolio_events[2] == Sell(2, 100_000)
 

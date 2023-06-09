@@ -1,7 +1,7 @@
-from src.domain.portfolio_event import Grant, File83b, Vest, Sell
+from src.domain.portfolio_event import Grant, File83b, Vest
 from src.domain.scenario import PortfolioEventData, TaxEventData, Metadata
 from src.domain.purchase import EmployeePurchase
-from src.domain.tax_event import Lot, IncomeTax, CapitalGains
+from src.domain.tax_event import IncomeTax
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
 from src.execute.scenario_runner import run_scenario
@@ -11,7 +11,7 @@ from src.execute.scenario_runner import run_scenario
 portfolio_event_data = PortfolioEventData(
     [0,	25_000, 25_000, 25_000, 25_000],
     -1,
-    EmployeePurchase(0, 0),
+    EmployeePurchase(0, 0.0),
     -1
 )
 
@@ -28,7 +28,7 @@ def test_get_portfolio_events_file_83b():
     portfolio_events = get_portfolio_events(
         True, portfolio_event_data)
     assert len(portfolio_events) == 6
-    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0))
+    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0.0))
     assert portfolio_events[1] == File83b(0, 100_000)
     assert portfolio_events[2] == Vest(1, 25_000)
     assert portfolio_events[3] == Vest(2, 25_000)
@@ -51,7 +51,7 @@ def test_get_portfolio_events_forgo_83b():
     portfolio_events = get_portfolio_events(
         False, portfolio_event_data)
     assert len(portfolio_events) == 5
-    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0))
+    assert portfolio_events[0] == Grant(0, 100_000, EmployeePurchase(0, 0.0))
     assert portfolio_events[1] == Vest(1, 25_000)
     assert portfolio_events[2] == Vest(2, 25_000)
     assert portfolio_events[3] == Vest(3, 25_000)

@@ -13,7 +13,8 @@ def test_get_portfolio_events_file_83b_with_purchase(
     portfolio_events = get_portfolio_events(
         True, portfolio_event_data_with_purchase)
     assert len(portfolio_events) == 4
-    assert portfolio_events[0] == Grant(0, 25_000, EmployeePurchase(25_000, 1))
+    assert portfolio_events[0] == Grant(
+        0, 25_000, EmployeePurchase(25_000, 1.0))
     assert portfolio_events[1] == File83b(0, 25_000)
     assert portfolio_events[2] == Vest(2, 25_000)
     assert portfolio_events[3] == Sell(3, 25_000)

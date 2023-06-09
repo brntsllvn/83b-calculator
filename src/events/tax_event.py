@@ -74,10 +74,12 @@ def get_vest_taxable_event(
 
     time_idx = portfolio_event.time_idx
     share_price = share_price_process[time_idx]
-    employee_purchase_dollars = get_purchase_dollars(employee_purchase)
-    taxable_dollars = round(1.0 * share_price *
-                            portfolio_event.share_count - employee_purchase_dollars, 2)
-    tax_dollars = 1.0 * taxable_dollars * marginal_income_tax_rate
+    employee_purchase_per_share = employee_purchase.price_per_share
+    # employee_purchase_dollars = get_purchase_dollars(employee_purchase)
+    # NOTE: Very subtle -> This logic assume employee purchased the ENTIRE grant.
+    taxable_dollars = round(1.0 *
+                            (share_price - employee_purchase_per_share) * portfolio_event.share_count, 2)
+    tax_dollars = round(1.0 * taxable_dollars * marginal_income_tax_rate, 2)
     return IncomeTax(time_idx, taxable_dollars, tax_dollars, marginal_income_tax_rate)
 
 
@@ -100,7 +102,8 @@ def get_sale_taxable_event(
 
     basis = get_basis(lots)
     taxable_dollars = round(fair_market_value - basis, 2)
-    tax_dollars = round(1.0 * taxable_dollars * marginal_long_term_capital_gains_rate, 2)
+    tax_dollars = round(1.0 * taxable_dollars *
+                        marginal_long_term_capital_gains_rate, 2)
     return CapitalGains(
         sale_portfolio_event.time_idx,
         taxable_dollars,
@@ -147,8 +150,10 @@ def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events
 
 
 def _subtract_tax_events(time_idx, yes_83b_tax_events, no_83b_tax_events):
-    yes_83b_tax_liability = _find_tax_liability_by_id(time_idx, yes_83b_tax_events)
-    no_83b_tax_liability = _find_tax_liability_by_id(time_idx, no_83b_tax_events)
+    yes_83b_tax_liability = _find_tax_liability_by_id(
+        time_idx, yes_83b_tax_events)
+    no_83b_tax_liability = _find_tax_liability_by_id(
+        time_idx, no_83b_tax_events)
     # NOTE: we flip the sign since tax is a cash outflow
     return -1.0 * (yes_83b_tax_liability - no_83b_tax_liability)
 

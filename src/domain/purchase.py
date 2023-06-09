@@ -11,7 +11,9 @@ class Purchase(ABC):
         if self.share_count is None or \
                 self.share_count < 0 or \
                 self.price_per_share is None or \
-                self.price_per_share < 0:
+                self.price_per_share < 0 or \
+                not isinstance(self.share_count, int) or \
+                not isinstance(self.price_per_share, float):
             raise ValueError(
                 "share_count must be a positive integer, price_per_share must be a positive float")
 

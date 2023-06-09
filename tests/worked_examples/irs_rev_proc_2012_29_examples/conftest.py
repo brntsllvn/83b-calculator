@@ -10,7 +10,7 @@ def portfolio_event_data_with_purchase():
     return PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
         termination_idx=-1,
-        employee_purchase=EmployeePurchase(25_000, 1),
+        employee_purchase=EmployeePurchase(25_000, 1.0),
         liquidation_idx=3
     )
 
@@ -31,7 +31,7 @@ def portfolio_event_data():
     return PortfolioEventData(
         vesting_schedule=[0, 0, 25_000, 0],
         termination_idx=-1,
-        employee_purchase=EmployeePurchase(0, 0),
+        employee_purchase=EmployeePurchase(0, 0.0),
         liquidation_idx=3
     )
 

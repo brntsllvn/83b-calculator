@@ -12,7 +12,7 @@ def test_get_portfolio_events_forgo_83b(portfolio_event_data):
     portfolio_events = get_portfolio_events(
         False, portfolio_event_data)
     assert len(portfolio_events) == 3
-    assert portfolio_events[0] == Grant(0, 25_000, EmployeePurchase(0, 0))
+    assert portfolio_events[0] == Grant(0, 25_000, EmployeePurchase(0, 0.0))
     assert portfolio_events[1] == Vest(2, 25_000)
     assert portfolio_events[2] == Sell(3, 25_000)
 

@@ -46,4 +46,4 @@ def _get_employer_purchase(employee_purchase):
             1.1 min(FMV, purchase_price)
         2. max(FMV, purchase_price)
     """
-    return EmployerPurchase(employee_purchase.share_count, employee_purchase.price_per_share)
+    return EmployerPurchase(employee_purchase.share_count, 1.0 * employee_purchase.price_per_share)
