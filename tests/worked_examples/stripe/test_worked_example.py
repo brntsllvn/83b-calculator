@@ -5,7 +5,7 @@ from src.domain.tax_event import IncomeTax, CapitalGains
 from src.domain.lot import Lot, get_portfolio_lots
 from src.events.portfolio_event import get_portfolio_events
 from src.events.tax_event import get_tax_events
-# from src.execute.scenario_runner import run_scenario
+from src.execute.scenario_runner import run_scenario
 
 # https://stripe.com/docs/atlas/83b-election
 portfolio_event_data = PortfolioEventData(
@@ -94,10 +94,10 @@ def test_get_tax_events_forgo_83b_with_purchase():
     assert tax_events[2] == CapitalGains(3, 250_000, 50_000, 0.20)
 
 
-# def test_value_of_83b():
-#     scenario_result = run_scenario(
-#         portfolio_event_data,
-#         tax_event_data,
-#         metadata)
-#     assert scenario_result.raw == 25_496.60
-#     assert scenario_result.npv == 3_898.48
+def test_value_of_83b():
+    scenario_result = run_scenario(
+        portfolio_event_data,
+        tax_event_data,
+        metadata)
+    assert scenario_result.raw == 25_496.60
+    assert scenario_result.npv == 25_190.69

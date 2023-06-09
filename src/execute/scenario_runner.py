@@ -13,7 +13,7 @@ def run_scenario(portfolio_event_data, tax_event_data, metadata):
         len(tax_event_data.share_price_process),
         file_83b_tax_events,
         forgo_83b_tax_events)
-    raw = sum(tax_diff_process)
+    raw = round(sum(tax_diff_process), 2)
     npv = calculate_npv(tax_diff_process, metadata.discount_rate)
     return ScenarioResult(raw, npv)
 
