@@ -39,6 +39,7 @@ def test_get_portfolio_events_file_83b_with_purchase():
 # def test_get_portfolio_lots_file_83b_with_purchase():
 #     portfolio_events = get_portfolio_events(
 #         True, portfolio_event_data)
+#     portfolio_lots =
 #     lots = get_portfolio_lots
 #     portfolio_lots = portfolio_events[4].portfolio_lots
 #     assert len(portfolio_lots) == 1
