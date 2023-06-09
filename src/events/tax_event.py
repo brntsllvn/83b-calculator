@@ -75,8 +75,7 @@ def get_vest_taxable_event(
     time_idx = portfolio_event.time_idx
     share_price = share_price_process[time_idx]
     employee_purchase_per_share = employee_purchase.price_per_share
-    # employee_purchase_dollars = get_purchase_dollars(employee_purchase)
-    # NOTE: Very subtle -> This logic assume employee purchased the ENTIRE grant.
+    # TODO: Handle the case when employee buys shares at a discount
     taxable_dollars = round(1.0 *
                             (share_price - employee_purchase_per_share) * portfolio_event.share_count, 2)
     tax_dollars = round(1.0 * taxable_dollars * marginal_income_tax_rate, 2)
@@ -92,16 +91,11 @@ def get_sale_taxable_event(
     sell_time_idx = sale_portfolio_event.time_idx
     fair_market_value = 1.0 * \
         sale_portfolio_event.share_count * share_price_process[sell_time_idx]
-    if filed_83b:
-        grant_share_price = share_price_process[0]
-        lots = get_yes_83b_lots(
-            grant_share_price, sale_portfolio_event.share_count)
-    else:
-        lots = get_no_83b_lots(
-            all_portfolio_events, share_price_process)
+    lots = get_portfolio_lots(
+        filed_83b, all_portfolio_events, share_price_process)
 
-    basis = get_basis(lots)
-    taxable_dollars = round(fair_market_value - basis, 2)
+    portfolio_basis = get_portfolio_basis(lots)
+    taxable_dollars = round(fair_market_value - portfolio_basis, 2)
     tax_dollars = round(1.0 * taxable_dollars *
                         marginal_long_term_capital_gains_rate, 2)
     return CapitalGains(
@@ -112,20 +106,23 @@ def get_sale_taxable_event(
         marginal_long_term_capital_gains_rate)
 
 
-def get_basis(lots):
+def get_portfolio_basis(lots):
     basis = 0
     for lot in lots:
         basis += lot.share_count * lot.basis_per_share
     return basis
 
 
-def get_yes_83b_lots(grant_share_price, sell_share_count):
-    lots = [Lot(0, grant_share_price, sell_share_count)]
-    return lots
+def get_portfolio_lots(filed_83b, all_portfolio_events, share_price_process):
+    if filed_83b:
+        grant_share_price = share_price_process[0]
+        grant_share_count = 0
+        for portfolio_event in all_portfolio_events:
+            if isinstance(portfolio_event, Grant):
+                grant_share_count = portfolio_event.share_count
+        lots = [Lot(0, grant_share_price, grant_share_count)]
+        return lots
 
-
-def get_no_83b_lots(all_portfolio_events,
-                    share_price_process):
     lots = []
     for portfolio_event in all_portfolio_events:
         if isinstance(portfolio_event, Vest):
