@@ -92,5 +92,14 @@ def test_value_of_83b():
         cooley_portfolio_event_data,
         cooley_tax_event_data,
         metadata)
-    assert scenario_result.raw == 16_830
+    assert scenario_result.raw == 16_830.00
     assert scenario_result.npv == 16_913.73
+    # assert scenario_result.
+
+
+def test_print_scenario_result():
+    scenario_result = run_scenario(
+        cooley_portfolio_event_data,
+        cooley_tax_event_data,
+        metadata)
+    scenario_result.pp()

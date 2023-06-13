@@ -9,13 +9,13 @@ def run_scenario(portfolio_event_data, tax_event_data, metadata):
         True, portfolio_event_data, tax_event_data)
     forgo_83b_tax_events = run_case(
         False, portfolio_event_data, tax_event_data)
-    tax_diff_process = get_tax_diff_process(
+    tax_flows = get_tax_diff_process(
         len(tax_event_data.share_price_process),
         file_83b_tax_events,
         forgo_83b_tax_events)
-    raw = round(sum(tax_diff_process), 2)
-    npv = calculate_npv(tax_diff_process, metadata.discount_rate)
-    return ScenarioResult(raw, npv)
+    raw = round(sum(tax_flows.tax_diff_process), 2)
+    npv = calculate_npv(tax_flows.tax_diff_process, metadata.discount_rate)
+    return ScenarioResult(tax_flows, raw, npv)
 
 
 def run_case(file_83b_election, portfolio_event_data, tax_event_data):

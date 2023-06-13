@@ -1,6 +1,7 @@
 from src.domain.portfolio_event import Grant, File83b, Vest, Sell, Repurchase, Forfeit
 from src.domain.tax_event import IncomeTax, CapitalGains
 from src.domain.lot import get_portfolio_lots
+from src.domain.scenario_result import TaxFlows
 
 
 def get_tax_events(portfolio_events,
@@ -118,12 +119,16 @@ def get_purchase_dollars(employee_purchase):
 
 
 def get_tax_diff_process(number_of_events, yes_83b_tax_events, no_83b_tax_events):
+    yes_83b_process = []
+    no_83b_process = []
     tax_diff_process = []
     for idx in range(0, number_of_events):
-        tax_diff = _subtract_tax_events(
+        yes_83b_tax_liability, no_83b_tax_liability, tax_diff = _subtract_tax_events(
             idx, yes_83b_tax_events, no_83b_tax_events)
+        yes_83b_process.append(yes_83b_tax_liability)
+        no_83b_process.append(no_83b_tax_liability)
         tax_diff_process.append(tax_diff)
-    return tax_diff_process
+    return TaxFlows(yes_83b_process, no_83b_process, tax_diff_process)
 
 
 def _subtract_tax_events(time_idx, yes_83b_tax_events, no_83b_tax_events):
@@ -132,7 +137,8 @@ def _subtract_tax_events(time_idx, yes_83b_tax_events, no_83b_tax_events):
     no_83b_tax_liability = _find_tax_liability_by_id(
         time_idx, no_83b_tax_events)
     # NOTE: we flip the sign since tax is a cash outflow
-    return -1.0 * (yes_83b_tax_liability - no_83b_tax_liability)
+    return yes_83b_tax_liability, no_83b_tax_liability, \
+        (yes_83b_tax_liability - no_83b_tax_liability)
 
 
 def _find_tax_liability_by_id(time_idx, tax_events):
@@ -140,5 +146,5 @@ def _find_tax_liability_by_id(time_idx, tax_events):
         # TODO: check for multiple items with the same index
         # This could happen if someone vests and sells in the same year
         if tax_event.time_idx == time_idx:
-            return tax_event.tax_liability_dollars
+            return round(-1.0 * tax_event.tax_liability_dollars, 2)
     return 0
