@@ -8,7 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install git
-RUN apk add --no-cache git openssh-client
+# NOTE: don't do this... then you need to do some ssh magic... just use your terminal
+# RUN apk add --no-cache git openssh-client
 
 # Install pip requirements
 COPY requirements.txt .
