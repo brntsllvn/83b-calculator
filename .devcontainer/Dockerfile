@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install git
-RUN apk add --no-cache git
+RUN apk add --no-cache git openssh-client
 
 # Install pip requirements
 COPY requirements.txt .
